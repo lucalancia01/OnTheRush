@@ -45,6 +45,7 @@ public class GamePanel extends JPanel {
     // Sprites statici
     private BufferedImage imgCar;
     private BufferedImage imgCoin;
+    private BufferedImage imgBonus;
     private BufferedImage imgRiderDefault;
     private BufferedImage imgRiderRed;
     private BufferedImage imgRiderBlue;
@@ -108,6 +109,7 @@ public class GamePanel extends JPanel {
     private void loadSprites() {
         imgCar = safeReadPng(getAbsolutePath ("/resources/car.png"));
         imgCoin = safeReadPng(getAbsolutePath ("/resources/coin.png"));
+        imgBonus = safeReadPng(getAbsolutePath ("/resources/bonus.png"));
         imgRiderDefault = safeReadPng(getAbsolutePath ("/resources/rider_default.png"));
         imgRiderRed = safeReadPng(getAbsolutePath ("/resources/rider_red.png"));
         imgRiderBlue = safeReadPng(getAbsolutePath ("/resources/rider_blue.png"));
@@ -278,6 +280,17 @@ public class GamePanel extends JPanel {
         }
     }
 
+    // 7) Bonus
+    for (Bonus b : gameModel.getBonus()) {
+        if (imgBonus != null) {
+            g2.drawImage(imgBonus, b.getX(), b.getY(), b.getW(), b.getH(), null);
+        } else {
+            g2.setColor(Color.BLUE);
+            g2.fillOval(b.getX(), b.getY(), b.getW(), b.getH());
+        }
+    }
+
+
     // 9) Player con effetto blink invulnerabile
     Player p = gameModel.getPlayer();
     boolean blink = gameModel.isInvulnerable() && ((System.currentTimeMillis() / 120) % 2 == 0);
@@ -309,6 +322,11 @@ public class GamePanel extends JPanel {
         bgFrameIndex = (bgFrameIndex + 1) % bgFrames.length;
         lastBgFrameTime = now;
         repaint();
+    }
+
+    if (gameModel.getPlayer().getSpeedMultiplier() > 1.0) {
+        g2.setColor(Color.YELLOW);
+        g2.drawString("SPEED x2!", 20, 80);
     }
 
     int totalCoins = wallet.getCoins();

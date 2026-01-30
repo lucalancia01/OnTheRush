@@ -8,6 +8,7 @@ import utils.Config;
 public class PlayerProfileModel {
     private final Config cfg = Config.getInstance();
     private String playerName;
+    private boolean bonusState = false;
 
     public PlayerProfileModel() {
         this.playerName = cfg.getPlayerName();
@@ -16,7 +17,14 @@ public class PlayerProfileModel {
     public String getPlayerName() {
         return playerName;
     }
+    
+    public Boolean getBonusState() {
+        return bonusState;
+    }
 
+    public void setBonusStateTrue() {
+        bonusState = true;
+    }
     /**
      * Salva nome nel file unico di config.
      */

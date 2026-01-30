@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 public class Player {
     private int x, y, w, h;
     private int speed = 8;
+    private double speedMultiplier = 1.0;
 
     public Player(int x, int y, int w, int h) {
         this.x = x; this.y = y; this.w = w; this.h = h;
@@ -25,9 +26,17 @@ public class Player {
         return new Rectangle(x, y, w, h);
     }
 
+     public void setSpeedMultiplier(double m) {
+        this.speedMultiplier = m;
+    }
+
+    public double getSpeedMultiplier() {
+        return speedMultiplier;
+    }
+
     public int getX() { return x; }
     public int getY() { return y; }
     public int getW() { return w; }
     public int getH() { return h; }
-    public int getSpeed() {return speed; }
+  
 }

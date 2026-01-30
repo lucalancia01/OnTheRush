@@ -28,8 +28,11 @@ public class GameModel {
     private long lastSpawnObstacleMs;
     private long lastSpawnCoinMs;
     private long lastSpawnBonus;
-   
-    private boolean activeBonus=false;
+    private long speedBonusUntilMs = 0;
+    private long lastSpawnBonusMs = 0;
+    
+    public static final long SPEED_BONUS_DURATION = 5000; // 5 secondi
+
 
     private int scoreSeconds;
 
@@ -80,6 +83,11 @@ public class GameModel {
      */
     public void update(VehicleCustomizationModel wallet, PlayerProfileModel profile){
         if (state != State.RUNNING) return;
+
+        //reset bonus velocità
+        if (System.currentTimeMillis() > speedBonusUntilMs) {
+            player.setSpeedMultiplier(1.0); // torna normale
+        }
 
         long now = System.currentTimeMillis();
         long elapsedMs = now - startTimeMs;
@@ -146,7 +154,7 @@ public class GameModel {
         int laneW = width / lanes;
         int lane = rnd.nextInt(lanes);
         int x = lane * laneW + (laneW - bw) / 2;
-        bonus.add(new Bonus(x, -bh, bw, bh, 2));
+        bonus.add(new Bonus(x, -bh, bw, bh));
     }
 
     /**
@@ -193,16 +201,21 @@ public class GameModel {
         }
        
         // bonus
-        Iterator<Bonus> it = bonus.iterator();
+        Iterator<Bonus> bon = bonus.iterator();
         while (it.hasNext()) {
-            Bonus b = it.next();
+            Bonus b = bon.next();
             if (pb.intersects(b.getBounds())) {
-                if (activeBonus!=true);
-                =Player.getSpeed()*Bonus().getValue();
-                it.remove();
+                activateSpeedBonus();
             }
         }
+        
+        
     }
+
+    private void activateSpeedBonus() {
+            speedBonusUntilMs = System.currentTimeMillis() + SPEED_BONUS_DURATION;
+            player.setSpeedMultiplier(2.0); // raddoppia velocità
+        }
 
 
     public boolean isInvulnerable() {
@@ -216,6 +229,7 @@ public class GameModel {
     public Player getPlayer() { return player; }
     public List<Obstacle> getObstacles() { return obstacles; }
     public List<Coin> getCoins() { return coins; }
+    public List<Bonus> getBonus() { return bonus; }
     public int getScoreSeconds() { return scoreSeconds; }
     public int getCurrentFallSpeed() { return currentFallSpeed; }
     public int getCoinsCollectedThisRun() { return coinsCollectedThisRun; }
