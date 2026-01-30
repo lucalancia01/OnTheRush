@@ -21,6 +21,7 @@ public class GameModel {
     private final Player player;
     private final List<Obstacle> obstacles = new ArrayList<>();
     private final List<Coin> coins = new ArrayList<>();
+    private final List<Bonus> bonus = new ArrayList<>();
     private final Random rnd = new Random();
 
     private long startTimeMs;
@@ -58,6 +59,7 @@ public class GameModel {
     public void start(VehicleCustomizationModel upgrades) {
         obstacles.clear();
         coins.clear();
+        bonus.clear();
         state = State.RUNNING;
 
         startTimeMs = System.currentTimeMillis();
@@ -110,9 +112,12 @@ public class GameModel {
 
         for (Obstacle o : obstacles) o.moveDown(currentFallSpeed);
         for (Coin c : coins) c.moveDown(currentFallSpeed);
+        for (Bonus b : bonus) b.moveDown(currentFallSpeed);
 
         obstacles.removeIf(o -> o.getY() > height + 50);
         coins.removeIf(c -> c.getY() > height + 50);
+        bonus.removeIf(c -> c.getY() > height + 50);
+
 
         checkCollisions(wallet, profile);
     }
@@ -140,7 +145,7 @@ public class GameModel {
         int lanes = 5;
         int laneW = width / lanes;
         int lane = rnd.nextInt(lanes);
-        int x = lane * laneW + (laneW - cw) / 2;
+        int x = lane * laneW + (laneW - bw) / 2;
         bonus.add(new Bonus(x, -bh, bw, bh, 2));
     }
 
@@ -186,13 +191,14 @@ public class GameModel {
                 it.remove();
             }
         }
-        
+       
+        // bonus
         Iterator<Bonus> it = bonus.iterator();
         while (it.hasNext()) {
             Bonus b = it.next();
             if (pb.intersects(b.getBounds())) {
                 if (activeBonus!=true);
-                speed=speed*Bonus().getValue();
+                =Player.getSpeed()*Bonus().getValue();
                 it.remove();
             }
         }
@@ -215,3 +221,5 @@ public class GameModel {
     public int getCoinsCollectedThisRun() { return coinsCollectedThisRun; }
     public int getLives() { return lives; }
 }
+
+//ciao luchi

@@ -29,4 +29,5 @@ public class Player {
     public int getY() { return y; }
     public int getW() { return w; }
     public int getH() { return h; }
+    public int getSpeed() {return speed; }
 }
