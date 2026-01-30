@@ -308,7 +308,7 @@ public class Config {
         List<String> lines = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             String line = properties.getProperty("leaderboard." + i);
-            if (line != null && !line.isBlank()) lines.add(line.trim());
+            if (line != null && !line.isEmpty()) lines.add(line.trim());
         }
         return lines;
     }
@@ -335,7 +335,7 @@ public class Config {
      */
     public void addLeaderboardEntry(String name, int score, int coinsRun, long timestamp) {
         // sanitizzazione nome per evitare rompere formato ';'
-        if (name == null || name.isBlank()) name = "Player";
+        if (name == null || name.isEmpty()) name = "Player";
         name = name.trim().replace(";", " ");
 
         List<String> lines = getLeaderboardLines();
