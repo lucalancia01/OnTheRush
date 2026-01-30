@@ -29,7 +29,6 @@ public class GameModel {
     private long lastSpawnCoinMs;
     private long lastSpawnBonus;
     private long speedBonusUntilMs = 0;
-    private long lastSpawnBonusMs = 0;
     
     public static final long SPEED_BONUS_DURATION = 5000; // 5 secondi
 
@@ -112,7 +111,7 @@ public class GameModel {
         }
 
         // Spawn Bonus
-        int bonusInterval = Math.max(800, 1200 - scoreSeconds * 5);
+        int bonusInterval = 8000;
         if (now - lastSpawnBonus >= bonusInterval) {
             spawnBonus();
             lastSpawnBonus = now;
