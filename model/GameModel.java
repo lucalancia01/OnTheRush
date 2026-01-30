@@ -113,10 +113,11 @@ public class GameModel {
 
         // Spawn Bonus
         int bonusInterval = Math.max(800, 1200 - scoreSeconds * 5);
-        if (now - lastSpawnCoinMs >= bonusInterval) {
+        if (now - lastSpawnBonus >= bonusInterval) {
             spawnBonus();
             lastSpawnBonus = now;
         }
+
 
         for (Obstacle o : obstacles) o.moveDown(currentFallSpeed);
         for (Coin c : coins) c.moveDown(currentFallSpeed);
@@ -202,13 +203,14 @@ public class GameModel {
        
         // bonus
         Iterator<Bonus> bon = bonus.iterator();
-        while (it.hasNext()) {
+        while (bon.hasNext()) {
             Bonus b = bon.next();
             if (pb.intersects(b.getBounds())) {
                 activateSpeedBonus();
+                bon.remove();          // importante: lo togli una volta preso
             }
         }
-        
+
         
     }
 

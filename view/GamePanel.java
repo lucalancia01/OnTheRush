@@ -323,12 +323,7 @@ public class GamePanel extends JPanel {
         lastBgFrameTime = now;
         repaint();
     }
-
-    if (gameModel.getPlayer().getSpeedMultiplier() > 1.0) {
-        g2.setColor(Color.YELLOW);
-        g2.drawString("SPEED x2!", 20, 80);
-    }
-
+ 
     int totalCoins = wallet.getCoins();
     int runCoins = gameModel.getCoinsCollectedThisRun();
     
@@ -345,6 +340,11 @@ public class GamePanel extends JPanel {
     hud.drawString("Vite: " + gameModel.getLives(), x + 500, y);
     hud.drawString("Score: " + gameModel.getScoreSeconds(), x + 140, y);
     hud.drawString("Monete: " + runCoins + " (Tot: " + totalCoins + ")", x + 280, y);
+
+    if (gameModel.getPlayer().getSpeedMultiplier() > 1.0) {
+        hud.setColor(Color.YELLOW);
+        hud.drawString("SPEED x2!", 20, 80);
+    }
 
     hud.dispose();
 }
