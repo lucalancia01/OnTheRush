@@ -26,7 +26,9 @@ public class GameModel {
     private long startTimeMs;
     private long lastSpawnObstacleMs;
     private long lastSpawnCoinMs;
+    private long lastSpawnBonus;
    
+    private boolean activeBonus=false;
 
     private int scoreSeconds;
 
@@ -61,7 +63,7 @@ public class GameModel {
         startTimeMs = System.currentTimeMillis();
         lastSpawnObstacleMs = startTimeMs;
         lastSpawnCoinMs = startTimeMs;
-
+        lastSpawnBonus = startTimeMs;
         scoreSeconds = 0;
         coinsCollectedThisRun = 0;
 
@@ -99,6 +101,13 @@ public class GameModel {
             lastSpawnCoinMs = now;
         }
 
+        // Spawn Bonus
+        int bonusInterval = Math.max(800, 1200 - scoreSeconds * 5);
+        if (now - lastSpawnCoinMs >= bonusInterval) {
+            spawnBonus();
+            lastSpawnBonus = now;
+        }
+
         for (Obstacle o : obstacles) o.moveDown(currentFallSpeed);
         for (Coin c : coins) c.moveDown(currentFallSpeed);
 
@@ -124,6 +133,15 @@ public class GameModel {
         int lane = rnd.nextInt(lanes);
         int x = lane * laneW + (laneW - cw) / 2;
         coins.add(new Coin(x, -ch, cw, ch, 1));
+    }
+
+    private void spawnBonus() {
+        int bw = 26, bh = 26;
+        int lanes = 5;
+        int laneW = width / lanes;
+        int lane = rnd.nextInt(lanes);
+        int x = lane * laneW + (laneW - cw) / 2;
+        bonus.add(new Bonus(x, -bh, bw, bh, 2));
     }
 
     /**
@@ -165,6 +183,16 @@ public class GameModel {
             if (pb.intersects(c.getBounds())) {
                 if (wallet != null) wallet.addCoins(c.getValue());
                 coinsCollectedThisRun += c.getValue();
+                it.remove();
+            }
+        }
+        
+        Iterator<Bonus> it = bonus.iterator();
+        while (it.hasNext()) {
+            Bonus b = it.next();
+            if (pb.intersects(b.getBounds())) {
+                if (activeBonus!=true);
+                speed=speed*Bonus().getValue();
                 it.remove();
             }
         }
