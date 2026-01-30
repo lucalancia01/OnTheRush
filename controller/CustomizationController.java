@@ -81,6 +81,23 @@ public class CustomizationController {
             }
         });
 
+         //riprisino impostazioni default
+        settingsView.restoreDefaultsButton.addActionListener(e -> {
+            // 1) reset nel file
+            utils.Config.getInstance().resetUiAndSettingsToDefaults();
+
+            // 2) riallinea model e view (sound subito)
+            settingsModel.setSoundEnabled(utils.Config.getInstance().isSoundEnabled());
+            settingsView.soundCheck.setSelected(settingsModel.isSoundEnabled());
+
+            // alternativa (feedback più forte):
+            JOptionPane.showMessageDialog (settingsView, 
+                "Impostazioni ripristinate.\nLe modifiche saranno effettive al prossimo avvio.",
+                "OK", 
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+        
         // Impostazioni audio
         settingsView.bind(settingsModel);
         settingsView.soundCheck.addActionListener(e -> {

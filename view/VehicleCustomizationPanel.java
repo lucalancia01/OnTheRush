@@ -3,8 +3,13 @@ package view;
 import model.VehicleCustomizationModel;
 import model.VehicleSkin;
 
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Menu personalizzazione veicolo:
@@ -27,11 +32,21 @@ public class VehicleCustomizationPanel extends JPanel {
     public VehicleCustomizationPanel() {
         setLayout(new BorderLayout());
 
+      
+          
+        // destra: pannello vuoto (bilancia il layout)
+        JPanel right = new JPanel();
+        right.setOpaque(false);
+        right.setPreferredSize(backButton.getPreferredSize());
+        
         JLabel title = new JLabel("Personalizzazione Veicolo", SwingConstants.CENTER);
         title.setFont(UiConstants.TITLE_FONT);
-
+        
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         top.add(backButton);
+        top.add(right);
+        top.add(title);
+
 
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
@@ -40,7 +55,16 @@ public class VehicleCustomizationPanel extends JPanel {
         coinsLabel.setFont(UiConstants.UI_FONT);
         extraLivesLabel.setFont(UiConstants.UI_FONT);
         extraLifeCostLabel.setFont(UiConstants.UI_FONT);
+
+        coinsLabel.setForeground(Color.WHITE);
+        extraLivesLabel.setForeground(Color.WHITE);
+        extraLifeCostLabel.setForeground(Color.WHITE);
         
+        Dimension pref = skinCombo.getPreferredSize();
+        skinCombo.setMaximumSize(
+            new Dimension(UiConstants.GAME_W, pref.height)
+        );
+
         skinCombo.setFont(UiConstants.UI_FONT);
         buySelectButton.setFont(UiConstants.UI_FONT);
         buyExtraLifeButton.setFont(UiConstants.UI_FONT);
@@ -48,7 +72,9 @@ public class VehicleCustomizationPanel extends JPanel {
         center.add(coinsLabel);
         center.add(Box.createVerticalStrut(12));
 
-        center.add(new JLabel("Seleziona skin (costo in monete):"));
+        JLabel txtSkin = new JLabel("Seleziona skin (costo in monete):");
+        txtSkin.setForeground(Color.WHITE);
+        center.add(txtSkin);
         center.add(skinCombo);
         center.add(Box.createVerticalStrut(12));
         center.add(buySelectButton);
@@ -59,10 +85,11 @@ public class VehicleCustomizationPanel extends JPanel {
         center.add(buyExtraLifeButton);
         center.add(Box.createVerticalStrut(6));
         center.add(extraLifeCostLabel);
+
+        center.setOpaque(false);
         
         add(top, BorderLayout.NORTH);
-        add(title, BorderLayout.CENTER);
-        add(center, BorderLayout.SOUTH);
+        add(center, BorderLayout.CENTER);
     }
 
     public VehicleSkin getSelectedSkin() {
@@ -76,6 +103,38 @@ public class VehicleCustomizationPanel extends JPanel {
     public void updateExtraLives(VehicleCustomizationModel model) {
         extraLivesLabel.setText("Vite extra acquistate: " + model.getExtraLives());
         extraLifeCostLabel.setText("Costo vita extra: " + model.getExtraLifeCost() + " monete");
+    }
+
+    //metodo per caricare correttamente immagini png
+    private BufferedImage safeReadPng(String path) {
+    try {
+        if (path == null) return null;
+        File f = new File(path);
+        if (!f.exists()) return null;
+        return ImageIO.read(f);
+    } catch (IOException e) {
+        return null;
+        }
+    }
+
+    //restituisce il cammino assoluto
+    private String getAbsolutePath(String relativePath) {
+        Properties props = System.getProperties();
+        String userDir = props.getProperty("user.dir");
+
+        if (relativePath == null || relativePath.isEmpty()) {
+            return userDir;
+        }
+
+        return userDir + relativePath;
+    }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        BufferedImage vehicleCustBack = safeReadPng(getAbsolutePath ("/resources/settings_background.png"));
+        if (vehicleCustBack != null) {
+                 g.drawImage(vehicleCustBack, 0, 0, UiConstants.WINDOW_W, UiConstants.WINDOW_H, this);
+            }
     }
 
 }
