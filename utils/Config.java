@@ -35,9 +35,7 @@ public class Config {
     // PRIVATE METHODS
     //---------------------------------------------------------------
 
-    /**
-     * Carica conf/config.txt; se non esiste lo crea con valori di default.
-     */
+    // Carica conf/config.txt; se non esiste lo crea con valori di default.
     private void loadOrCreate() {
         try {
             File f = new File(this.configFilePath);
@@ -130,19 +128,56 @@ public class Config {
         ensureKey("leaderboard.count", "0");
     }
 
-
+    //serve per verificare se c'è il campo corrispondente e in caso negativo lo crea
     private void ensureKey(String key, String defaultValue) {
         if (properties.getProperty(key) == null) {
             properties.setProperty(key, defaultValue);
         }
     }
 
+    //serve quando si ha bisogno del percorso relativo
     private String getConfigFile() {
         // Percorso relativo (portabile)
         return "conf" + File.separator + "config.txt";
     }
 
+    // Ripristina SOLO impostazioni/UI (non tocca player/coins/skin/extraLives/leaderboard)
+    public void resetUiAndSettingsToDefaults() {
+        // UI
+        setInt("ui.window_size", 720);
+        setString("ui.font_family", "SansSerif");
+        setInt("ui.font_title_size", 28);
+        setInt("ui.font_ui_size", 16);
 
+        setString("player.name", "Player");
+        setInt("player.coins", 0);
+        setString("player.vehicleSkin", "DEFAULT");
+        setInt("player.extraLives", 0);
+
+        setInt("shop.skin.DEFAULT", 0);
+        setInt("shop.skin.RED", 50);
+        setInt("shop.skin.BLUE", 50);
+        setInt("shop.skin.GOLD", 150);
+        setInt("shop.extraLife.cost", 120);
+
+        // Settings
+        setBool("settings.soundEnabled", true);
+
+        // salva immediatamente
+        save();
+    }
+
+    /**
+     * Cancella SOLO la leaderboard (nel file unico).
+     */
+    public void resetLeaderboard() {
+        int oldCount = getInt("leaderboard.count", 0);
+        for (int i = 0; i < oldCount; i++) {
+            properties.remove("leaderboard." + i);
+        }
+        properties.setProperty("leaderboard.count", "0");
+        save();
+    }
 
     //---------------------------------------------------------------
     // PUBLIC METHODS: SAVE/GETTERS/SETTERS
@@ -264,7 +299,6 @@ public class Config {
     // LEADERBOARD dentro lo stesso file
     // -------------------------------------------------------------
 
-    
     /**
      * Restituisce le entry salvate come lista di righe nel formato:
      * Nome;score;coinsRun;timestamp
@@ -274,8 +308,7 @@ public class Config {
         List<String> lines = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             String line = properties.getProperty("leaderboard." + i);
-            if (line != null && !line.trim().isEmpty()) 
-                lines.add(line.trim());
+            if (line != null && !line.isBlank()) lines.add(line.trim());
         }
         return lines;
     }
@@ -302,7 +335,7 @@ public class Config {
      */
     public void addLeaderboardEntry(String name, int score, int coinsRun, long timestamp) {
         // sanitizzazione nome per evitare rompere formato ';'
-        if (name == null || name.trim().isEmpty()) name = "Player";
+        if (name == null || name.isBlank()) name = "Player";
         name = name.trim().replace(";", " ");
 
         List<String> lines = getLeaderboardLines();

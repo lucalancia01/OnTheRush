@@ -98,9 +98,21 @@ public class AppController {
             nav.goTo(MainFrame.LEADERBOARD);
         });
 
-        leaderboardPanel.backButton.addActionListener(
-                e -> nav.goTo(MainFrame.START)
-        );
+        // LEADERBOARD MANAGMENT
+        leaderboardPanel.backButton.addActionListener(e -> nav.goTo(MainFrame.START));
+
+        leaderboardPanel.clearButton.addActionListener(e -> {
+            int res = javax.swing.JOptionPane.showConfirmDialog(
+                    leaderboardPanel,
+                    "Vuoi davvero cancellare la leaderboard?",
+                    "Conferma",
+                    javax.swing.JOptionPane.YES_NO_OPTION
+            );
+            if (res == javax.swing.JOptionPane.YES_OPTION) {
+                utils.Config.getInstance().resetLeaderboard();
+                leaderboardPanel.setEntries(leaderboardModel.getTop10());
+            }
+        });
 
         // GAME -> START
         gamePanel.backButton.addActionListener(e -> {

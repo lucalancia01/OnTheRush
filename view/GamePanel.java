@@ -67,9 +67,9 @@ public class GamePanel extends JPanel {
 
     //posiziona elementi menù pausa
     private void setupPauseOverlay(){
+        pauseOverlay.setPreferredSize(new Dimension(300, 260));
         pauseOverlay.setLayout(new GridLayout(5, 1, 10, 10));
         pauseOverlay.setBackground(new Color(0, 0, 0, 180));
-        pauseOverlay.setBounds(90, 180, 300, 260);
 
         JLabel paused = new JLabel("PAUSA", SwingConstants.CENTER);
         paused.setForeground(Color.WHITE);
@@ -88,6 +88,20 @@ public class GamePanel extends JPanel {
 
         pauseOverlay.setVisible(false);
         add(pauseOverlay);
+    }
+
+    /**
+     * Centra il pannello di pausa nella finestra (GamePanel).
+     * Viene chiamato ogni repaint e quando cambia la dimensione.
+     */
+    private void centerPauseOverlay() {
+        int pw = pauseOverlay.getPreferredSize().width;
+        int ph = pauseOverlay.getPreferredSize().height;
+
+        int x = (getWidth() - pw) / 2;
+        int y = (getHeight() - ph) / 2;
+
+        pauseOverlay.setBounds(x, y, pw, ph);
     }
     
     //Carica risorse da /resources/... Se una risorsa manca, resta null e si useranno le forme
@@ -200,20 +214,14 @@ public class GamePanel extends JPanel {
         }
     }
 
-    /**
-    * Ricalcola la posizione dei componenti Swing (bottoni/overlay)
-    * in base all'offset del game world centrato.
-    */
-    private void repositionUiComponents(int offX, int offY) {
-    backButton.setBounds(offX + 10, offY + 10, 100, 30);
-    pauseOverlay.setBounds(offX + 90, offY + 180, 300, 260);
-    }
-
     //disegna le componenti grafiche
 
     @Override
     protected void paintComponent(Graphics g) {
     super.paintComponent(g);
+    
+    centerPauseOverlay();
+
     if (gameModel == null || bgFrames == null || bgFrames.length == 0) return;
 
     Graphics2D g2 = (Graphics2D) g.create();
@@ -242,9 +250,6 @@ public class GamePanel extends JPanel {
     int offX = (getWidth() - UiConstants.GAME_W) / 2;
     int offY = (getHeight() - UiConstants.GAME_H) / 2;
 
-    // Riposiziona HUD e overlay
-    repositionUiComponents(offX, offY);
-
     // 4) Contesto grafico per game world
     g2.translate(offX, offY);
     g2.setClip(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
@@ -252,14 +257,6 @@ public class GamePanel extends JPanel {
     // 5) Disegna area di gioco di base se sfondo non sufficiente
     g2.setColor(new Color(30, 30, 30));
     g2.fillRect(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
-
-    // 6) HUD
-    g2.setColor(Color.WHITE);
-    g2.setFont(UiConstants.UI_FONT);
-    g2.drawString("Vite: " + gameModel.getLives(), 20, 30);
-    g2.drawString("Tempo: " + gameModel.getScoreSeconds() + "s", 140, 30);
-    g2.drawString("Vel: " + gameModel.getCurrentFallSpeed(), 260, 30);
-    g2.drawString("Monete: " + (wallet != null ? wallet.getCoins() : 0), 350, 30);
 
     // 7) Ostacoli
     for (Obstacle o : gameModel.getObstacles()) {
@@ -313,6 +310,25 @@ public class GamePanel extends JPanel {
         lastBgFrameTime = now;
         repaint();
     }
+
+    int totalCoins = wallet.getCoins();
+    int runCoins = gameModel.getCoinsCollectedThisRun();
+    
+    Graphics2D hud = (Graphics2D) g.create();
+    hud.setColor(Color.WHITE);
+    hud.fillRect(0, 0, getWidth(),50);
+
+    hud.setColor(Color.BLACK);
+    hud.setFont(UiConstants.UI_FONT);
+
+    int x = 12;
+    int y = 30; // baseline testo dentro la barra
+
+    hud.drawString("Vite: " + gameModel.getLives(), x + 500, y);
+    hud.drawString("Score: " + gameModel.getScoreSeconds(), x + 140, y);
+    hud.drawString("Monete: " + runCoins + " (Tot: " + totalCoins + ")", x + 280, y);
+
+    hud.dispose();
 }
 
 
