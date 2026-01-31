@@ -13,6 +13,7 @@ public class AppController {
     private VehicleCustomizationPanel vehiclePanel;
     private GeneralCustomizationPanel settingsPanel;
     private LeaderboardPanel leaderboardPanel;
+    private AudioModel audio;
 
     // Models
     private GameModel gameModel;
@@ -64,8 +65,27 @@ public class AppController {
 
         wireButtons();
 
+        // Carico la traccia A all'avvio
+        try {
+            audio = new AudioModel("MenuMusic.wav","GameplayMusic.wav");
+            audio.play(AudioModel.Track.A);                 // traccia A all'avvio
+        } catch (Exception ex) {
+            ex.printStackTrace(); // o logger
+        }
+
         frame.setVisible(true);
         nav.goTo(MainFrame.START);
+    }
+
+    // metodo per semplificare la gestione audio nello switch tra due schermate
+    private void syncMusicWithScreen(String screenKey) {
+        if (audio == null) return;
+
+        if (MainFrame.GAME.equals(screenKey)) {
+            audio.play(AudioModel.Track.B);
+        } else {
+            audio.play(AudioModel.Track.A);
+        }
     }
 
     private void wireButtons() {
@@ -73,6 +93,7 @@ public class AppController {
         // START -> GAME
         startPanel.playButton.addActionListener(e -> {
             profileModel.setPlayerName(startPanel.nameField.getText());
+            syncMusicWithScreen(MainFrame.GAME);
             nav.goTo(MainFrame.GAME);
             gamePanel.refreshSkin(walletModel);
             gameController.startGame(profileModel);
@@ -83,23 +104,29 @@ public class AppController {
         startPanel.vehicleButton.addActionListener(e -> {
             vehiclePanel.updateCoins(walletModel);
             vehiclePanel.updateExtraLives(walletModel);
+            syncMusicWithScreen(MainFrame.VEHICLE);
             nav.goTo(MainFrame.VEHICLE);
         });
 
         // START -> SETTINGS
         startPanel.settingsButton.addActionListener(e -> {
             settingsPanel.bind(settingsModel);
+            syncMusicWithScreen(MainFrame.SETTINGS);
             nav.goTo(MainFrame.SETTINGS);
         });
 
         // START -> LEADERBOARD
         startPanel.leaderboardButton.addActionListener(e -> {
             leaderboardPanel.setEntries(leaderboardModel.getTop10());
+            syncMusicWithScreen(MainFrame.LEADERBOARD);
             nav.goTo(MainFrame.LEADERBOARD);
         });
 
         // LEADERBOARD MANAGMENT
-        leaderboardPanel.backButton.addActionListener(e -> nav.goTo(MainFrame.START));
+        leaderboardPanel.backButton.addActionListener(e -> {
+            syncMusicWithScreen(MainFrame.START);
+            nav.goTo(MainFrame.START);
+        });
 
         leaderboardPanel.clearButton.addActionListener(e -> {
             int res = javax.swing.JOptionPane.showConfirmDialog(
@@ -117,6 +144,7 @@ public class AppController {
         // GAME -> START
         gamePanel.backButton.addActionListener(e -> {
             gameController.stopGame();
+            syncMusicWithScreen(MainFrame.START);
             nav.goTo(MainFrame.START);
         });
 
@@ -128,6 +156,7 @@ public class AppController {
 
         gamePanel.toStartButton.addActionListener(e -> {
             gameController.stopGame();
+            syncMusicWithScreen(MainFrame.START);
             nav.goTo(MainFrame.START);
         });
 
@@ -135,23 +164,27 @@ public class AppController {
             gameController.stopGame();
             vehiclePanel.updateCoins(walletModel);
             vehiclePanel.updateExtraLives(walletModel);
+            syncMusicWithScreen(MainFrame.VEHICLE);
             nav.goTo(MainFrame.VEHICLE);
         });
 
         gamePanel.toSettingsButton.addActionListener(e -> {
             gameController.stopGame();
             settingsPanel.bind(settingsModel);
+            syncMusicWithScreen(MainFrame.SETTINGS);
             nav.goTo(MainFrame.SETTINGS);
         });
 
         // VEHICLE -> START
-        vehiclePanel.backButton.addActionListener(
-                e -> nav.goTo(MainFrame.START)
-        );
+        vehiclePanel.backButton.addActionListener(e -> {
+            syncMusicWithScreen(MainFrame.START);
+            nav.goTo(MainFrame.START);
+        });
 
         // SETTINGS -> START
-        settingsPanel.backButton.addActionListener(
-                e -> nav.goTo(MainFrame.START)
-        );
+        settingsPanel.backButton.addActionListener(e -> {
+            syncMusicWithScreen(MainFrame.START);
+            nav.goTo(MainFrame.START);
+        });
     }
 }
