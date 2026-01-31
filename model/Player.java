@@ -18,11 +18,13 @@ public class Player {
     }
 
     public void moveLeft(int minX) {
-        x = Math.max(minX, x - speed);
+        int step = Math.max(1, (int) Math.round(speed * speedMultiplier));
+        x = Math.max(minX, x - step);
     }
 
     public void moveRight(int maxX) {
-        x = Math.min(maxX - w, x + speed);
+        int step = Math.max(1, (int) Math.round(speed * speedMultiplier));
+        x = Math.min(maxX - w, x + step);
     }
 
     public Rectangle getBounds() {
@@ -42,6 +44,7 @@ public class Player {
     public double getSpeedMultiplier() {
         return speedMultiplier;
     }
+
 
     public int getX() { return x; }
     public int getY() { return y; }

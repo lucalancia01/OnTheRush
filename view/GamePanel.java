@@ -46,6 +46,7 @@ public class GamePanel extends JPanel {
     private BufferedImage imgCar;
     private BufferedImage imgCoin;
     private BufferedImage imgBonus;
+    private BufferedImage imgx2;
     private BufferedImage imgRiderDefault;
     private BufferedImage imgRiderRed;
     private BufferedImage imgRiderBlue;
@@ -110,6 +111,7 @@ public class GamePanel extends JPanel {
         imgCar = safeReadPng(getAbsolutePath ("/resources/car.png"));
         imgCoin = safeReadPng(getAbsolutePath ("/resources/coin.png"));
         imgBonus = safeReadPng(getAbsolutePath ("/resources/bonus.png"));
+        imgx2 = safeReadPng(getAbsolutePath ("/resources/x2.png"));
         imgRiderDefault = safeReadPng(getAbsolutePath ("/resources/rider_default.png"));
         imgRiderRed = safeReadPng(getAbsolutePath ("/resources/rider_red.png"));
         imgRiderBlue = safeReadPng(getAbsolutePath ("/resources/rider_blue.png"));
@@ -290,6 +292,16 @@ public class GamePanel extends JPanel {
         }
     }
 
+    // 7) Multiplier
+    for (Multiplier m : gameModel.getMultiplier()) {
+        if (imgx2 != null) {
+            g2.drawImage(imgx2, m.getX(), m.getY(), m.getW(), m.getH(), null);
+        } else {
+            g2.setColor(Color.GREEN);
+            g2.fillOval(m.getX(), m.getY(), m.getW(), m.getH());
+        }
+    }
+
 
     // 9) Player con effetto blink invulnerabile
     Player p = gameModel.getPlayer();
@@ -341,14 +353,28 @@ public class GamePanel extends JPanel {
     hud.drawString("Score: " + gameModel.getScoreSeconds(), x + 140, y);
     hud.drawString("Monete: " + runCoins + " (Tot: " + totalCoins + ")", x + 280, y);
 
-    if (gameModel.getPlayer().getSpeedMultiplier() > 1.0) {
-        hud.setColor(Color.YELLOW);
-        hud.drawString("SPEED x2!", 20, 80);
+    if (gameModel.isBonusActive()) {
+        drawBonusText(hud, " PLAYER SPEED x2!");
+    }
+
+    if (gameModel.isX2Active()) {
+        drawBonusText(hud, "SCORE x2");
     }
 
     hud.dispose();
 }
 
+    private void drawCenteredText(Graphics2D g, String text, int y) {
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int x = (getWidth() - textWidth) / 2;
+        g.drawString(text, x, y);
+    }
 
+    private void drawBonusText(Graphics2D g, String text) {
+        g.setColor(Color.YELLOW);
+        g.setFont(UiConstants.UI_FONT.deriveFont(Font.BOLD, 28f));
+        drawCenteredText(g, text, getHeight() / 2);
+    }
 }
 //versione 30/01/26
