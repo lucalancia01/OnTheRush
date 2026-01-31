@@ -353,12 +353,15 @@ public class GamePanel extends JPanel {
     hud.drawString("Score: " + gameModel.getScoreSeconds(), x + 140, y);
     hud.drawString("Monete: " + runCoins + " (Tot: " + totalCoins + ")", x + 280, y);
 
+    int centerY = getHeight() / 2;
+    int lineGap = 34; // distanza tra le righe
+
     if (gameModel.isBonusActive()) {
-        drawBonusText(hud, " PLAYER SPEED x2!");
+        drawBonusText(hud, "PLAYER SPEED x2!", centerY - lineGap);
     }
 
     if (gameModel.isX2Active()) {
-        drawBonusText(hud, "SCORE x2");
+        drawBonusText(hud, "SCORE x2", centerY + lineGap);
     }
 
     hud.dispose();
@@ -371,10 +374,10 @@ public class GamePanel extends JPanel {
         g.drawString(text, x, y);
     }
 
-    private void drawBonusText(Graphics2D g, String text) {
+    private void drawBonusText(Graphics2D g, String text, int y) {
         g.setColor(Color.YELLOW);
         g.setFont(UiConstants.UI_FONT.deriveFont(Font.BOLD, 28f));
-        drawCenteredText(g, text, getHeight() / 2);
+        drawCenteredText(g, text, y);
     }
 }
 //versione 30/01/26
