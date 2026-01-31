@@ -13,8 +13,6 @@ public class GameModel {
 
     private State state = State.READY;
     
-
-
     private final int width;
     private final int height;
 
@@ -32,14 +30,12 @@ public class GameModel {
     
     public static final long SPEED_BONUS_DURATION = 5000; // 5 secondi
 
-
+    private int coinsCollectedThisRun;
     private int scoreSeconds;
 
     private int baseSpeed = 3;
     private double accelPerSecond = 0.08;
     private int currentFallSpeed;
-
-    private int coinsCollectedThisRun;
 
     public static final int BASE_LIVES = 3;
     public static final int INVULN_MS = 1000;
@@ -217,7 +213,6 @@ public class GameModel {
             speedBonusUntilMs = System.currentTimeMillis() + SPEED_BONUS_DURATION;
             player.setSpeedMultiplier(2.0); // raddoppia velocità
         }
-
 
     public boolean isInvulnerable() {
         return System.currentTimeMillis() < invulnerableUntilMs;
