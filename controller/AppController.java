@@ -37,6 +37,22 @@ public class AppController {
 
         gameModel = new GameModel(UiConstants.GAME_W, UiConstants.GAME_H);
 
+        // prima di caricare audio: inizializza settingsModel
+        settingsModel = new SettingsModel();
+        settingsModel.setSoundEnabled(utils.Config.getInstance().isSoundEnabled()); // oppure come lo leggi tu
+
+        //carica audio
+        try {
+            audio = new AudioModel("MenuMusic.wav","GameplayMusic.wav");
+
+            // NON play diretto: usa la funzione che rispetta soundEnabled
+            syncMusicWithScreen(MainFrame.START);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            audio = null;
+        }
+
         // ===== VIEWS =====
         frame = new MainFrame();
         startPanel = new StartPanel();
@@ -51,7 +67,7 @@ public class AppController {
         nav = new NavigationController(frame);
         gameController = new GameController(gameModel, walletModel, gamePanel);
         customizationController =
-                new CustomizationController(walletModel, settingsModel, vehiclePanel, settingsPanel);
+                new CustomizationController(walletModel, settingsModel, vehiclePanel, settingsPanel, audio);
 
         // Pre-carica nome giocatore
         startPanel.nameField.setText(profileModel.getPlayerName());
@@ -65,14 +81,6 @@ public class AppController {
 
         wireButtons();
 
-        // Carico la traccia A all'avvio
-        try {
-            audio = new AudioModel("MenuMusic.wav","GameplayMusic.wav");
-            audio.play(AudioModel.Track.A);                 // traccia A all'avvio
-        } catch (Exception ex) {
-            ex.printStackTrace(); // o logger
-        }
-
         frame.setVisible(true);
         nav.goTo(MainFrame.START);
     }
@@ -80,6 +88,12 @@ public class AppController {
     // metodo per semplificare la gestione audio nello switch tra due schermate
     private void syncMusicWithScreen(String screenKey) {
         if (audio == null) return;
+        
+        // Se il suono è disabilitato, non deve partire nulla
+        if (!settingsModel.isSoundEnabled()) {
+            audio.pause();   // oppure audio.setMuted(true)
+            return;
+        }
 
         if (MainFrame.GAME.equals(screenKey)) {
             audio.play(AudioModel.Track.B);

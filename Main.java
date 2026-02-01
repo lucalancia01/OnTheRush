@@ -1,4 +1,7 @@
-import controller.AppController;
+import controller.*;
+import model.*;
+import view.*;
+import utils.Config;
 import javax.swing.*;
 
 /**

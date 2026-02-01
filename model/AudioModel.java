@@ -3,7 +3,6 @@ package model; // meglio: service.audio o infrastructure.audio
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Properties;
 
 
 public class AudioModel {
@@ -28,11 +27,9 @@ public class AudioModel {
      * quindi tipicamente: src/main/resources/audio/menu.wav
      */
     public AudioModel(String fileA,String fileB) throws IOException, UnsupportedAudioFileException {
-        Properties props = System.getProperties();
-        String userDir = props.getProperty("user.dir");
         
-        this.clipA = loadClipFromResources(userDir + "\\resources\\audio\\" + Objects.requireNonNull(fileA));
-        this.clipB = loadClipFromResources(userDir + "\\resources\\audio\\" + Objects.requireNonNull(fileB));
+        this.clipA = loadClipFromResources("/audio/" + Objects.requireNonNull(fileA));
+        this.clipB = loadClipFromResources("/audio/" + Objects.requireNonNull(fileB));
 
         // opzionale: parti “pronto” ma fermo
         stopInternal(this.clipA);

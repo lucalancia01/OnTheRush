@@ -27,11 +27,13 @@ public class CustomizationController {
     public CustomizationController(VehicleCustomizationModel vehicleModel,
                                    SettingsModel settingsModel,
                                    VehicleCustomizationPanel vehicleView,
-                                   GeneralCustomizationPanel settingsView) {
+                                   GeneralCustomizationPanel settingsView,
+                                    AudioModel audio) {
         this.vehicleModel = vehicleModel;
         this.settingsModel = settingsModel;
         this.vehicleView = vehicleView;
         this.settingsView = settingsView;
+        this.audio = audio; 
 
         bind();
     }
@@ -89,6 +91,9 @@ public class CustomizationController {
             // 2) riallinea model e view (sound subito)
             settingsModel.setSoundEnabled(utils.Config.getInstance().isSoundEnabled());
             settingsView.soundCheck.setSelected(settingsModel.isSoundEnabled());
+            boolean enabled = settingsModel.isSoundEnabled();
+            if (audio != null) audio.setMuted(!enabled);
+
 
             // alternativa (feedback più forte):
             JOptionPane.showMessageDialog (settingsView, 
@@ -100,8 +105,21 @@ public class CustomizationController {
         
         // Impostazioni audio
         settingsView.bind(settingsModel);
-        settingsView.soundCheck.addActionListener(e -> {
-            settingsModel.setSoundEnabled(settingsView.soundCheck.isSelected());
-        });
+        settingsView.soundCheck.addItemListener(e -> {
+        boolean enabled = settingsView.soundCheck.isSelected();
+        settingsModel.setSoundEnabled(enabled);
+
+        if (audio == null) return;
+
+        if (!enabled) {
+            audio.pause();
+        } else {
+            // quando riattivi, riparti dalla traccia "di menu"
+            // (oppure dalla traccia della schermata corrente se la conosci)
+            audio.play(AudioModel.Track.A);
+        }
+    });
+
+
     }
 }
