@@ -3,6 +3,7 @@ package controller;
 import model.SettingsModel;
 import model.VehicleCustomizationModel;
 import model.VehicleSkin;
+import model.AudioModel;
 import view.GeneralCustomizationPanel;
 import view.VehicleCustomizationPanel;
 
@@ -23,6 +24,8 @@ public class CustomizationController {
 
     private final VehicleCustomizationPanel vehicleView;
     private final GeneralCustomizationPanel settingsView;
+
+    private AudioModel audio;
 
     public CustomizationController(VehicleCustomizationModel vehicleModel,
                                    SettingsModel settingsModel,
