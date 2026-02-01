@@ -3,6 +3,8 @@ package view;
 import model.VehicleCustomizationModel;
 import model.VehicleSkin;
 
+import utils.Config;
+
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -24,7 +26,9 @@ public class VehicleCustomizationPanel extends JPanel {
     private final JLabel extraLivesLabel = new JLabel();
     private final JLabel extraLifeCostLabel = new JLabel();
 
-    private final JComboBox<VehicleSkin> skinCombo = new JComboBox<>(VehicleSkin.values());
+    private final VehicleSkin[] skins = VehicleSkin.values();     // array di appoggio
+    private final JComboBox<String> skinCombo = new JComboBox<>(); // ora contiene String
+
     public final JButton buySelectButton = new JButton("Compra / Seleziona");
 
     public final JButton buyExtraLifeButton = new JButton("Compra Vita Extra");
@@ -32,8 +36,6 @@ public class VehicleCustomizationPanel extends JPanel {
     public VehicleCustomizationPanel() {
         setLayout(new BorderLayout());
 
-      
-          
         // destra: pannello vuoto (bilancia il layout)
         JPanel right = new JPanel();
         right.setOpaque(false);
@@ -75,6 +77,7 @@ public class VehicleCustomizationPanel extends JPanel {
         JLabel txtSkin = new JLabel("Seleziona skin (costo in monete):");
         txtSkin.setForeground(Color.WHITE);
         center.add(txtSkin);
+        reloadSkinComboItems();
         center.add(skinCombo);
         center.add(Box.createVerticalStrut(12));
         center.add(buySelectButton);
@@ -90,6 +93,23 @@ public class VehicleCustomizationPanel extends JPanel {
         
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
+    }
+
+    // associa alla skin il relativo costo
+    private void reloadSkinComboItems() {
+        String[] items = new String[skins.length];
+
+        for (int i = 0; i < skins.length; i++) {
+            VehicleSkin skin = skins[i];
+
+            // <-- QUI prendi il costo da Config.getSource()
+            int cost = Config.getInstance().getSkinCost(skin.name());
+
+
+            items[i] = skin.name() + " - (" + cost + ")";
+        }
+
+        skinCombo.setModel(new DefaultComboBoxModel<>(items));
     }
 
     public VehicleSkin getSelectedSkin() {
