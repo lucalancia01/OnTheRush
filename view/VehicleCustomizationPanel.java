@@ -112,9 +112,19 @@ public class VehicleCustomizationPanel extends JPanel {
         skinCombo.setModel(new DefaultComboBoxModel<>(items));
     }
 
+    // Restituisce l'oggetto di tipo VehicleSkin corrispondente a quello selezionato in skinCombo
     public VehicleSkin getSelectedSkin() {
-        return (VehicleSkin) skinCombo.getSelectedItem();
+        String sel = (String) skinCombo.getSelectedItem();
+        if (sel == null) return null;
+
+        // es: "RED - (100)"  -> "RED"
+        int idx = sel.indexOf(" - ");
+        String skinName = (idx >= 0) ? sel.substring(0, idx) : sel;
+
+        return VehicleSkin.valueOf(skinName);
     }
+
+
 
     public void updateCoins(VehicleCustomizationModel model) {
         coinsLabel.setText("Monete disponibili: " + model.getCoins());

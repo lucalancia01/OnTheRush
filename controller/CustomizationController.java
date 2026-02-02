@@ -52,9 +52,11 @@ public class CustomizationController {
 
             vehicleView.updateCoins(vehicleModel);
 
+            int cost = utils.Config.getInstance().getSkinCost(selected.name());
+
             if (!ok) {
                 JOptionPane.showMessageDialog(vehicleView,
-                        "Monete insufficienti per " + selected.name() + " (costo: " + selected.getCost() + ")",
+                        "Monete insufficienti per " + selected.name() + " (costo: " + cost + ")",
                         "Acquisto non riuscito",
                         JOptionPane.WARNING_MESSAGE);
             } else {

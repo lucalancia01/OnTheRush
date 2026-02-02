@@ -162,6 +162,12 @@ public class AppController {
             nav.goTo(MainFrame.START);
         });
 
+        // GAME -> PAUSE
+        gamePanel.pauseButton.addActionListener(e -> {
+            gameController.togglePause();
+            gamePanel.requestFocusInWindow();
+        });
+
         // PAUSA -> RESUME
         gamePanel.resumeButton.addActionListener(e -> {
             gameController.togglePause();
