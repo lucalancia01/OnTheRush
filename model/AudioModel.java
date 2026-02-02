@@ -4,6 +4,8 @@ import javax.sound.sampled.*;
 import java.io.IOException;
 import java.util.Objects;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
+
 
 // Gestisce il sottofondo musicale dell applicazione
 public class AudioModel {
@@ -147,14 +149,17 @@ public class AudioModel {
     private Clip loadClipFromResources(String resourcePath)
             throws IOException, UnsupportedAudioFileException {
 
-        try (InputStream is = Objects.requireNonNull(
+        // AudioSystem può richiedere mark/reset sullo stream
+        // BufferedInputStream lo rende "resettable" (evita mark/reset not supported)
+        try (InputStream raw = Objects.requireNonNull(
                 getClass().getResourceAsStream(resourcePath),
                 "Risorsa non trovata: " + resourcePath
         );
-            AudioInputStream ais = AudioSystem.getAudioInputStream(is)) {
+            BufferedInputStream bis = new BufferedInputStream(raw);
+            AudioInputStream ais = AudioSystem.getAudioInputStream(bis)) {
 
             Clip clip = AudioSystem.getClip();
-            clip.open(ais);
+            clip.open(ais);                 // carica l'audio in memoria nel Clip
             clip.setMicrosecondPosition(0L);
             return clip;
 
@@ -162,4 +167,5 @@ public class AudioModel {
             throw new IOException("Linea audio non disponibile", e);
         }
     }
+
 }

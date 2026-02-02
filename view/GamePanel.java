@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
@@ -168,32 +169,35 @@ public class GamePanel extends JPanel {
     
     //Carica risorse grafiche
     private void loadSprites() {
-        imgCar = safeReadPng(getAbsolutePath ("/resources/car.png"));
-        imgCoin = safeReadPng(getAbsolutePath ("/resources/coin.png"));
-        imgBonus = safeReadPng(getAbsolutePath ("/resources/bonus.png"));
-        imgx2 = safeReadPng(getAbsolutePath ("/resources/x2.png"));
-        imgRiderDefault = safeReadPng(getAbsolutePath ("/resources/rider_default.png"));
-        imgRiderRed = safeReadPng(getAbsolutePath ("/resources/rider_red.png"));
-        imgRiderBlue = safeReadPng(getAbsolutePath ("/resources/rider_blue.png"));
-        imgRiderGold = safeReadPng(getAbsolutePath ("/resources/rider_gold.png"));
+        imgCar = readPngFromClasspath("/assets/car.png");
+        imgCoin = readPngFromClasspath("/assets/coin.png");
+        imgBonus = readPngFromClasspath("/assets/bonus.png");
+        imgx2 = readPngFromClasspath("/assets/x2.png");
+        imgRiderDefault = readPngFromClasspath("/assets/rider_default.png");
+        imgRiderRed = readPngFromClasspath("/assets/rider_red.png");
+        imgRiderBlue = readPngFromClasspath("/assets/rider_blue.png");
+        imgRiderGold = readPngFromClasspath("/assets/rider_gold.png");
     }
 
     //carica Frames sfondo
     private void loadBackgroundFrames() {
-    try {
-        File dir = new File("resources/bg");
-        File[] files = dir.listFiles((d, name) -> name.endsWith(".png"));
+        try {
+            int frameCount = 17; // numero di frame
+            bgFrames = new BufferedImage[frameCount];
 
-        if (files == null || files.length == 0) return;
+            for (int i = 0; i < frameCount; i++) {
+                String path = String.format("/assets/bg/frame_%03d.png", i + 1);
 
-        Arrays.sort(files, Comparator.comparing(File::getName));
+                InputStream is = getClass().getResourceAsStream(path);
+                if (is == null) {
+                    bgFrames = null;
+                    return;
+                }
 
-        bgFrames = new BufferedImage[files.length];
-        for (int i = 0; i < files.length; i++) {
-            bgFrames[i] = ImageIO.read(files[i]);
-        }
-    }   catch (IOException e) {
-        bgFrames = null;
+                bgFrames[i] = ImageIO.read(is);
+            }
+        } catch (IOException e) {
+            bgFrames = null;
         }
     }
 
@@ -209,30 +213,20 @@ public class GamePanel extends JPanel {
         g2.drawImage(frame, 0, 0, UiConstants.GAME_W, UiConstants.GAME_H, null);
     }
 
-    //metodo per caricare correttamente immagini png
-    private BufferedImage safeReadPng(String path) {
-    try {
-        if (path == null) return null;
-        File f = new File(path);
-        if (!f.exists()) return null;
-        return ImageIO.read(f);
-    } catch (IOException e) {
-        return null;
+    // Metodo per caricare correttamente le immagini dal classpath
+    private BufferedImage readPngFromClasspath(String resourcePath) {
+        try {
+            if (resourcePath == null) return null;
+
+            // path tipo "/assets/leaderboard_background.png"
+            return ImageIO.read(
+                    getClass().getResourceAsStream(resourcePath)
+            );
+        } catch (Exception e) {
+            return null;
         }
     }
 
-    //restituisce il cammino assoluto
-    private String getAbsolutePath(String relativePath) {
-        Properties props = System.getProperties();
-        String userDir = props.getProperty("user.dir");
-
-        if (relativePath == null || relativePath.isEmpty()) {
-            return userDir;
-        }
-
-        return userDir + relativePath;
-    }
-    
     // Collega model e wallet (monete/skin)
     public void bind(GameModel model, VehicleCustomizationModel wallet, PlayerProfileModel profileModel) {
         this.gameModel = model;

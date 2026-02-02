@@ -33,31 +33,47 @@ public class LeaderboardPanel extends JPanel {
     public LeaderboardPanel() {
         setLayout(new BorderLayout());
 
-        // destra: pannello vuoto (bilancia il layout)
         JPanel right = new JPanel();
         right.setOpaque(false);
         right.setPreferredSize(backButton.getPreferredSize());
-        
+
         JLabel title = new JLabel("Leaderboard - Top 10", SwingConstants.CENTER);
         title.setFont(UiConstants.TITLE_FONT);
-        
+
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         top.add(backButton);
         top.add(right);
         top.add(title);
 
+        // tabella
         table.setRowHeight(24);
         table.setFont(UiConstants.UI_FONT);
         table.getTableHeader().setFont(UiConstants.UI_FONT);
 
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+        scrollPane.setPreferredSize(new Dimension(700, 320));
+        scrollPane.setMaximumSize(new Dimension(900, 400));
+
         JPanel south = new JPanel();
         south.setOpaque(false);
         clearButton.setFont(UiConstants.UI_FONT);
-        south.add(clearButton, BorderLayout.EAST);
+        south.add(clearButton);
+
+        JPanel center = new JPanel();
+        center.setOpaque(false);
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+
+        center.add(Box.createVerticalStrut(120));
+        center.add(scrollPane);
+        center.add(Box.createVerticalStrut(10));
+        center.add(south);
 
         add(top, BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
-        add(south, BorderLayout.SOUTH);
+        add(center, BorderLayout.CENTER);
     }
 
     // aggiorna la tabella con le entry (già ordinate in config.txt)
@@ -78,35 +94,29 @@ public class LeaderboardPanel extends JPanel {
     }
 
     //metodo per caricare correttamente immagini png
-    private BufferedImage safeReadPng(String path) {
-    try {
-        if (path == null) return null;
-        File f = new File(path);
-        if (!f.exists()) return null;
-        return ImageIO.read(f);
-    } catch (IOException e) {
-        return null;
+    private BufferedImage readPngFromClasspath(String resourcePath) {
+        try {
+            if (resourcePath == null) return null;
+
+            return ImageIO.read(
+                    getClass().getResourceAsStream(resourcePath)
+            );
+        } catch (Exception e) {
+            return null;
         }
-    }
-
-    //restituisce il cammino assoluto
-    private String getAbsolutePath(String relativePath) {
-        Properties props = System.getProperties();
-        String userDir = props.getProperty("user.dir");
-
-        if (relativePath == null || relativePath.isEmpty()) {
-            return userDir;
-        }
-
-        return userDir + relativePath;
     }
 
     // sfondo
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        BufferedImage leaderboardBackground = safeReadPng(getAbsolutePath ("/resources/leaderboard_background.png"));
+        BufferedImage leaderboardBackground =
+            readPngFromClasspath("/assets/leaderboard_background.png");
+
         if (leaderboardBackground != null) {
-                 g.drawImage(leaderboardBackground, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this);
-            }
+            g.drawImage(leaderboardBackground,0, 0,
+                UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this
+            );
+        }
     }
+
 }

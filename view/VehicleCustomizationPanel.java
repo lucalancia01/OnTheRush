@@ -123,37 +123,30 @@ public class VehicleCustomizationPanel extends JPanel {
         extraLifeCostLabel.setText("Costo vita extra: " + model.getExtraLifeCost() + " monete");
     }
 
-    // metodo per caricare correttamente immagini png
-    private BufferedImage safeReadPng(String path) {
-    try {
-        if (path == null) return null;
-        File f = new File(path);
-        if (!f.exists()) return null;
-        return ImageIO.read(f);
-    } catch (IOException e) {
-        return null;
+    //metodo per caricare correttamente immagini png
+    private BufferedImage readPngFromClasspath(String resourcePath) {
+        try {
+            if (resourcePath == null) return null;
+
+            return ImageIO.read(
+                    getClass().getResourceAsStream(resourcePath)
+            );
+        } catch (Exception e) {
+            return null;
         }
-    }
-
-    // restituisce il cammino assoluto
-    private String getAbsolutePath(String relativePath) {
-        Properties props = System.getProperties();
-        String userDir = props.getProperty("user.dir");
-
-        if (relativePath == null || relativePath.isEmpty()) {
-            return userDir;
-        }
-
-        return userDir + relativePath;
     }
 
     // sfondo
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        BufferedImage vehicleCustBack = safeReadPng(getAbsolutePath ("/resources/settings_background.png"));
-        if (vehicleCustBack != null) {
-                 g.drawImage(vehicleCustBack, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this);
-            }
+        BufferedImage leaderboardBackground =
+            readPngFromClasspath("/assets/settings_background.png");
+
+        if (leaderboardBackground != null) {
+            g.drawImage(leaderboardBackground,0, 0,
+                UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this
+            );
+        }
     }
 
 }
