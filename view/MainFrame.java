@@ -3,10 +3,7 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Finestra principale contenente tutte le schermate tramite CardLayout.
- * Permette di cambiare schermata senza aprire nuove finestre.
- */
+// Finestra principale contenente tutte le schermate tramite CardLayout
 public class MainFrame extends JFrame {
     public static final String START = "START";
     public static final String GAME = "GAME";
@@ -23,7 +20,7 @@ public class MainFrame extends JFrame {
         setResizable(false);
 
         setContentPane(root);
-        setSize(UiConstants.WINDOW_W, UiConstants.WINDOW_H);
+        setSize(UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE);
         setLocationRelativeTo(null);
     }
 

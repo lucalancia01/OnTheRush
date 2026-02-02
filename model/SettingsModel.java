@@ -2,9 +2,7 @@ package model;
 
 import utils.Config;
 
-/**
- * Impostazioni generali (audio).
- */
+// Impostazioni generali
 public class SettingsModel {
     private final Config cfg = Config.getInstance();
     private boolean soundEnabled;
@@ -17,6 +15,7 @@ public class SettingsModel {
         return soundEnabled;
     }
 
+    // salva valore checkbox 
     public void setSoundEnabled(boolean enabled) {
         this.soundEnabled = enabled;
         cfg.setSoundEnabled(enabled);

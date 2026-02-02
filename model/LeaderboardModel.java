@@ -4,17 +4,13 @@ import java.time.Instant;
 import java.util.*;
 import utils.Config;
 
-/**
- * LeaderboardModel: legge le entry dal Config unico, le trasforma in oggetti e ritorna top 10.
- */
+// Legge le entry dal Config unico, le trasforma in oggetti e ritorna top 10
 public class LeaderboardModel {
     private final Config cfg = Config.getInstance();
 
     public List<LeaderboardEntry> getTop10() {
         List<String> lines = cfg.getLeaderboardLines();
         List<LeaderboardEntry> entries = new ArrayList<>();
-
-        
 
         for (String line : lines) {
             if (line == null || line.trim().isEmpty()) continue;
@@ -33,7 +29,7 @@ public class LeaderboardModel {
             } catch (Exception ignored) {}
         }
 
-        // Doppia sicurezza: ordino anche qui
+        // ordino anche qui
         entries.sort(Comparator.comparingInt(LeaderboardEntry::getScore).reversed());
         return entries.size() > 10 ? entries.subList(0, 10) : entries;
     }

@@ -2,9 +2,7 @@ package model;
 
 import java.awt.Rectangle;
 
-/**
- * Player che si muove solo orizzontalmente.
- */
+// Player (movimento orizzontale)
 public class Player {
     private int x, y, w, h;
     
@@ -44,7 +42,6 @@ public class Player {
     public double getSpeedMultiplier() {
         return speedMultiplier;
     }
-
 
     public int getX() { return x; }
     public int getY() { return y; }

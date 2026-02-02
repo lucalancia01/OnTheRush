@@ -1,10 +1,11 @@
-package model; // meglio: service.audio o infrastructure.audio
+package model;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.util.Objects;
+import java.io.InputStream;
 
-
+// Gestisce il sottofondo musicale dell applicazione
 public class AudioModel {
 
     public enum Track {
@@ -22,10 +23,7 @@ public class AudioModel {
 
     private boolean muted = false;
 
-    /**
-     * I file devono stare in classpath: /audio/<nomefile>
-     * quindi tipicamente: src/main/resources/audio/menu.wav
-     */
+    // Caricamento dei file audio dal classpath
     public AudioModel(String fileA,String fileB) throws IOException, UnsupportedAudioFileException {
         
         this.clipA = loadClipFromResources("/audio/" + Objects.requireNonNull(fileA));
@@ -36,12 +34,7 @@ public class AudioModel {
         stopInternal(this.clipB);
     }
 
-    /**
-     * Riproduce in loop continuo la traccia scelta, senza stacchi “strani”:
-     * - salva posizione dell’altra
-     * - ferma l’altra
-     * - riparte dalla posizione salvata della nuova (o da 0 se mai partita)
-     */
+    // Riproduce in loop continuo la traccia scelta
     public synchronized void play(Track track) {
         if (track == null) return;
 
@@ -50,7 +43,7 @@ public class AudioModel {
             return;
         }
 
-        // salva e stoppa la corrente
+        // salva e stoppa la traccia
         saveCurrentPosition();
         stopCurrentClip();
 
@@ -69,19 +62,19 @@ public class AudioModel {
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
-    /** Pausa la traccia corrente salvando la posizione (utile quando cambi panel). */
+    // Pausa la traccia corrente salvando la posizione
     public synchronized void pause() {
         saveCurrentPosition();
-        stopCurrentClip(); // stop mantiene la posizione corrente, ma noi la salviamo esplicitamente
+        stopCurrentClip();
     }
 
-    /** Riprende la traccia corrente dallo stesso punto, in loop continuo. */
+    // Riprende la traccia corrente dallo stesso punto
     public synchronized void resume() {
         if (currentTrack == null) return;
         play(currentTrack);
     }
 
-    /** Muto/Unmuto senza chiudere: migliore di close() per un pulsante mute. */
+    // Muto senza chiudere lo stream audio
     public synchronized void setMuted(boolean muted) {
         this.muted = muted;
         Clip c = getCurrentClip();
@@ -92,7 +85,7 @@ public class AudioModel {
         return muted;
     }
 
-    /** Ferma tutto e rilascia risorse. Dopo close() l’istanza non va riusata. */
+    //Ferma tutto e rilascia risorse
     public synchronized void close() {
         if (clipA != null) {
             clipA.stop();
@@ -109,8 +102,7 @@ public class AudioModel {
         posB = 0L;
     }
 
-    // -------------------- Helpers --------------------
-
+    // getters
     private Clip getCurrentClip() {
         if (currentTrack == Track.A) return clipA;
         if (currentTrack == Track.B) return clipB;
@@ -140,54 +132,34 @@ public class AudioModel {
         }
     }
 
+    // applica muto
     private void applyMuteToClip(Clip clip) {
         if (clip == null) return;
 
-        // se c'è MASTER_GAIN, abbassiamo il volume; altrimenti fallback su MUTE (se disponibile)
-        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            if (muted) {
-                gain.setValue(gain.getMinimum());
-            } else {
-                // 0 dB = volume “normale”
-                float normal = Math.min(0f, gain.getMaximum());
-                gain.setValue(normal);
-            }
-        } else if (clip.isControlSupported(BooleanControl.Type.MUTE)) {
-            BooleanControl muteCtrl = (BooleanControl) clip.getControl(BooleanControl.Type.MUTE);
+        if (clip.isControlSupported(BooleanControl.Type.MUTE)) {
+            BooleanControl muteCtrl =
+                    (BooleanControl) clip.getControl(BooleanControl.Type.MUTE);
             muteCtrl.setValue(muted);
         }
     }
 
-    private Clip loadClipFromResources(String resourcePath) throws IOException, UnsupportedAudioFileException {
-        // Carica dal classpath (quindi funziona anche se impacchetti in jar)
-        try (AudioInputStream aisOriginal =
-                     AudioSystem.getAudioInputStream(Objects.requireNonNull(
-                             getClass().getResource(resourcePath),
-                             "Risorsa non trovata: " + resourcePath
-                     ))) {
+    // caricamento risorse audio
+    private Clip loadClipFromResources(String resourcePath)
+            throws IOException, UnsupportedAudioFileException {
 
-            // A volte i wav non sono PCM e Clip può dare problemi: decodifica a PCM_SIGNED
-            AudioFormat baseFormat = aisOriginal.getFormat();
-            AudioFormat decodedFormat = new AudioFormat(
-                    AudioFormat.Encoding.PCM_SIGNED,
-                    baseFormat.getSampleRate(),
-                    16,
-                    baseFormat.getChannels(),
-                    baseFormat.getChannels() * 2,
-                    baseFormat.getSampleRate(),
-                    false
-            );
+        try (InputStream is = Objects.requireNonNull(
+                getClass().getResourceAsStream(resourcePath),
+                "Risorsa non trovata: " + resourcePath
+        );
+            AudioInputStream ais = AudioSystem.getAudioInputStream(is)) {
 
-            try (AudioInputStream aisDecoded = AudioSystem.getAudioInputStream(decodedFormat, aisOriginal)) {
-                DataLine.Info info = new DataLine.Info(Clip.class, decodedFormat);
-                Clip clip = (Clip) AudioSystem.getLine(info);
-                clip.open(aisDecoded);
-                clip.setMicrosecondPosition(0L);
-                return clip;
-            } catch (LineUnavailableException e) {
-                throw new IOException("Linea audio non disponibile", e);
-            }
+            Clip clip = AudioSystem.getClip();
+            clip.open(ais);
+            clip.setMicrosecondPosition(0L);
+            return clip;
+
+        } catch (LineUnavailableException e) {
+            throw new IOException("Linea audio non disponibile", e);
         }
     }
 }

@@ -2,9 +2,7 @@ package controller;
 
 import view.MainFrame;
 
-/**
- * Controller dedicato alla navigazione fra schermate (CardLayout).
- */
+// Controller dedicato alla navigazione fra schermate (CardLayout)
 public class NavigationController {
     private final MainFrame frame;
 

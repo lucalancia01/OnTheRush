@@ -12,7 +12,9 @@ public class GameModel {
     public enum State { READY, RUNNING, GAME_OVER }
 
     private State state = State.READY;
-
+    
+    private final Config cfg = Config.getInstance();
+    
     private final int width;
     private final int height;
 
@@ -32,7 +34,7 @@ public class GameModel {
     private long bonusUntilMs = 0;        // bonus speed
     private long scoreBonusUntilMs = 0;   // bonus score x2
 
-    private static final int SCORE_MULTIPLIER = 2;
+    private static final int SCORE_MULTIPLIER = 2;  // 2.0x
     public static final long BONUS_DURATION = 5000; // 5 secondi
 
     private long lastScoreUpdateMs = 0;
@@ -42,35 +44,31 @@ public class GameModel {
     private int scoreSeconds = 0;
 
     private int baseSpeed = 3;
-    private double accelPerSecond = 0.08;
+    private double accelPerSecond = 0.08; // accelerazione progressiva
     private int currentFallSpeed;
 
     public static final int BASE_LIVES = 3;
-    public static final int INVULN_MS = 1000;
+    public static final int INVULN_MS = 1000; // 1 secondo
 
     private int lives;
     private long invulnerableUntilMs = 0;
 
-    // flags HUD (si spengono a fine timer)
     private boolean isX2Active = false;
     private boolean isBonusActive = false;
 
-    // ===== Anti-overlap spawn (lanes) =====
+    // Anti-overlap spawn
     private static final int LANES = 5;
     private static final int MAX_SPAWN_TRIES = 12;
-    private static final int MIN_VERTICAL_GAP = 60; // aumenta/diminuisci a gusto
+    private static final int MIN_VERTICAL_GAP = 60;
 
-    private final Config cfg = Config.getInstance();
-
+    // costruttore
     public GameModel(int width, int height) {
         this.width = width;
         this.height = height;
         this.player = new Player(width / 2 - 20, height - 90, 40, 60);
     }
 
-    /**
-     * Avvia una nuova run: vite = base + extraLives acquistate dallo store.
-     */
+    //Avvia una nuova partita
     public void start(VehicleCustomizationModel upgrades) {
         obstacles.clear();
         coins.clear();
@@ -83,14 +81,13 @@ public class GameModel {
         lastSpawnCoinMs = startTimeMs;
         lastSpawnBonusMs = startTimeMs;
         lastSpawnMultiplierMs = startTimeMs;
-
         lastScoreUpdateMs = startTimeMs;
+        
         scoreMsAccumulator = 0;
         scoreSeconds = 0;
-
         coinsCollectedThisRun = 0;
 
-        // reset bonus
+        // reset bonus (deve iniziare normalmente)
         bonusUntilMs = 0;
         scoreBonusUntilMs = 0;
         isBonusActive = false;
@@ -103,15 +100,13 @@ public class GameModel {
         invulnerableUntilMs = 0;
     }
 
-    /**
-     * Tick di update del gioco.
-     */
+    // Tick di update del gioco
     public void update(VehicleCustomizationModel wallet, PlayerProfileModel profile) {
         if (state != State.RUNNING) return;
 
         long now = System.currentTimeMillis();
 
-        // ===== Gestione scadenza bonus (spegne anche scritte HUD) =====
+        // Gestione scadenza bonus
         if (now > bonusUntilMs) {
             player.setSpeedMultiplier(1.0);
             isBonusActive = false;
@@ -120,7 +115,7 @@ public class GameModel {
             isX2Active = false;
         }
 
-        // ===== Score per tempo =====
+        // Score per tempo
         long deltaMs = now - lastScoreUpdateMs;
         lastScoreUpdateMs = now;
 
@@ -180,10 +175,7 @@ public class GameModel {
         checkCollisions(wallet, profile);
     }
 
-    // =========================================================
-    // =============== SPAWN SENZA SOVRAPPOSIZIONI ===============
-    // =========================================================
-
+    // Spawn senza sovrapposizioni (anti-overlap)
     private int laneWidth() {
         return width / LANES;
     }
@@ -209,14 +201,12 @@ public class GameModel {
         return false;
     }
 
-    /**
-     * Evita oggetti troppo vicini in verticale nella stessa corsia.
-     */
+    // Evita oggetti troppo vicini in verticale nella stessa corsia.
     private boolean laneTooCrowded(Rectangle r) {
         int rx = r.x;
         int lw = laneWidth();
 
-        // stesso "colonna/corsia" se x è simile
+        // stesso corsia se x è simile
         java.util.function.Predicate<Rectangle> near = other -> {
             boolean sameLane = Math.abs(other.x - rx) < lw / 2;
             boolean tooCloseY = Math.abs(other.y - r.y) < MIN_VERTICAL_GAP;
@@ -238,6 +228,7 @@ public class GameModel {
         return false;
     }
 
+    // Generazione ostacoli
     private void spawnObstacle() {
         int ow = 50, oh = 70;
 
@@ -252,9 +243,9 @@ public class GameModel {
                 return;
             }
         }
-        // se non trova spazio, salta questo spawn
     }
 
+    // Generazione monete
     private void spawnCoin() {
         int cw = 26, ch = 26;
 
@@ -271,6 +262,7 @@ public class GameModel {
         }
     }
 
+    // Generazione bonus velocità player
     private void spawnBonus() {
         int bw = 26, bh = 26;
 
@@ -287,6 +279,7 @@ public class GameModel {
         }
     }
 
+    // Generazione multiplier
     private void spawnMultiplier() {
         int mw = 26, mh = 26;
 
@@ -297,15 +290,13 @@ public class GameModel {
 
             Rectangle r = new Rectangle(x, y, mw, mh);
             if (!overlapsSomething(r) && !laneTooCrowded(r)) {
-                multiplier.add(new Multiplier(x, y, mw, mh)); // ✅ GIUSTO: lista multiplier
+                multiplier.add(new Multiplier(x, y, mw, mh));
                 return;
             }
         }
     }
 
-    // =========================================================
-    // =================== COLLISIONI & BONUS ===================
-    // =========================================================
+    // Verifica collisioni
 
     private void checkCollisions(VehicleCustomizationModel wallet, PlayerProfileModel profile) {
         long now = System.currentTimeMillis();
@@ -372,6 +363,7 @@ public class GameModel {
         }
     }
 
+    // Attiva il bonus alla collisione
     private void activateSpeedBonus() {
         long now = System.currentTimeMillis();
         bonusUntilMs = now + BONUS_DURATION;
@@ -379,23 +371,19 @@ public class GameModel {
         isBonusActive = true;
     }
 
+    // Attiva il multiplier alla collisione
     private void activateScoreBonus() {
         long now = System.currentTimeMillis();
         scoreBonusUntilMs = now + BONUS_DURATION;
         isX2Active = true;
     }
 
-    // =========================================================
-    // ========================= GETTERS ========================
-    // =========================================================
-
+    // getters
     public boolean isX2Active() { return isX2Active; }
     public boolean isBonusActive() { return isBonusActive; }
-
     public boolean isInvulnerable() {
         return System.currentTimeMillis() < invulnerableUntilMs;
     }
-
     public State getState() { return state; }
     public Player getPlayer() { return player; }
     public List<Obstacle> getObstacles() { return obstacles; }

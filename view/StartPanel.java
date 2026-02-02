@@ -8,12 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- * Schermata iniziale:
- * - input nome giocatore
- * - bottone centrale "GIOCA"
- * - in basso: veicolo, impostazioni, leaderboard
- */
+//Schermata iniziale
 public class StartPanel extends JPanel {
     public final JButton playButton = new JButton("GIOCA");
     public final JButton vehicleButton = new JButton("Veicolo");
@@ -44,18 +39,16 @@ public class StartPanel extends JPanel {
         playRow.add(playButton);
         playRow.setOpaque(false);
 
-        
         center.add(Box.createVerticalStrut(40));
         center.add(nameRow);
         center.add(playRow);
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 12));
+        bottom.setOpaque(false);
         vehicleButton.setFont(UiConstants.UI_FONT);
         settingsButton.setFont(UiConstants.UI_FONT);
         leaderboardButton.setFont(UiConstants.UI_FONT);
-        bottom.setOpaque(false);
-
-
+        
         bottom.add(vehicleButton);
         bottom.add(settingsButton);
         bottom.add(leaderboardButton);
@@ -88,11 +81,12 @@ public class StartPanel extends JPanel {
         return userDir + relativePath;
     }
 
+    // sfondo
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         BufferedImage startBackground = safeReadPng(getAbsolutePath ("/resources/menu_background.png"));
         if (startBackground != null) {
-                 g.drawImage(startBackground, 0, 0, UiConstants.WINDOW_W, UiConstants.WINDOW_H, this);
+                 g.drawImage(startBackground, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this);
             }
     }
 }

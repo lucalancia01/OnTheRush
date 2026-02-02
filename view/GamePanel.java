@@ -11,12 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import model.*;
 
-/**
- * Schermata di gioco: disegna HUD, oggetti e player.
- * - Sprite PNG per ostacoli/monete/player
- * - Sfondo GIF animata (ImageIcon)
- * - Overlay pausa con pulsanti
- */
+// Schermata di gioco
 public class GamePanel extends JPanel {
     private GameModel gameModel;
     private VehicleCustomizationModel wallet;
@@ -30,24 +25,10 @@ public class GamePanel extends JPanel {
     public final JButton toStartButton = new JButton("Schermata iniziale");
     public final JButton toVehicleButton = new JButton("Menu veicolo");
     public final JButton toSettingsButton = new JButton("Impostazioni");
-
-
-    // ===== Sfondo animato da PNG =====
-    private int bgFrameIndex = 0;
-    private long lastBgFrameTime = 0;
-    private static final int BG_FRAME_DELAY = 70; // ms (≈14 fps)
-
-    // ===== Background animation =====
-    private BufferedImage[] bgFrames;
-    private int bgIndex = 0;
     
-    // ===== Timer animazione sfondo =====
-    private Timer bgTimer;
-    
-    // ===== HUD Panel superiore =====
-    private final JPanel hudPanel = new JPanel(new BorderLayout());
+    // Status bar
+    private final JPanel statusBarPanel = new JPanel(new BorderLayout());
     public final JButton pauseButton = new JButton("Pausa");
-
     private final JLabel livesLabel = new JLabel("Vite: 0");
     private final JLabel scoreLabel = new JLabel("Score: 0");
     private final JLabel coinsLabel = new JLabel("Monete: 0");
@@ -61,14 +42,21 @@ public class GamePanel extends JPanel {
     private BufferedImage imgRiderRed;
     private BufferedImage imgRiderBlue;
     private BufferedImage imgRiderGold;
+    
+    // Sfondo animato da PNG
+    private int bgFrameIndex = 0;
+    private long lastBgFrameTime = 0;
+    private static final int BG_FRAME_DELAY = 70; // 14 fps
+    private BufferedImage[] bgFrames;
+    private int bgIndex = 0;
+    private Timer bgTimer;
 
-    //costruttore
     public GamePanel() {
         setLayout(null);
-        setPreferredSize(new Dimension(UiConstants.WINDOW_W, UiConstants.WINDOW_H));
+        setPreferredSize(new Dimension(UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE));
         setFocusable(true);
 
-        setupHudPanel();
+        setupStatusBarPanel();
         setupPauseOverlay();
         loadSprites();
         loadBackgroundFrames();
@@ -76,9 +64,10 @@ public class GamePanel extends JPanel {
 
     }
 
-    private void setupHudPanel() {
-        hudPanel.setBackground(Color.WHITE);
-        hudPanel.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+    // costruisce la status bar e la aggiunge in alto
+    private void setupStatusBarPanel() {
+        statusBarPanel.setBackground(Color.WHITE);
+        statusBarPanel.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
 
         backButton.setFont(UiConstants.UI_FONT);
         pauseButton.setFont(UiConstants.UI_FONT);
@@ -95,19 +84,20 @@ public class GamePanel extends JPanel {
         center.add(coinsLabel);
         center.add(livesLabel);
 
-        hudPanel.add(backButton, BorderLayout.WEST);
-        hudPanel.add(center, BorderLayout.CENTER);
-        hudPanel.add(pauseButton, BorderLayout.EAST);
+        statusBarPanel.add(backButton, BorderLayout.WEST);
+        statusBarPanel.add(center, BorderLayout.CENTER);
+        statusBarPanel.add(pauseButton, BorderLayout.EAST);
 
-        add(hudPanel);
+        add(statusBarPanel);
     }
 
+    // Regola l'animazione dello schermo attraverso un timer
     private void setupBackgroundTimer() {
         bgTimer = new Timer(BG_FRAME_DELAY, e -> {
             if (bgFrames == null || bgFrames.length == 0) return;
             if (gameModel == null) return;
 
-            // STOP se pausa (overlay visibile) O se game over
+            // STOP se pausa o se game over
             boolean stopped = pauseOverlay.isVisible()
                     || gameModel.getState() == GameModel.State.GAME_OVER;
 
@@ -119,19 +109,17 @@ public class GamePanel extends JPanel {
         bgTimer.start();
     }
 
-
+    // Crea il layout per gli elementi secondari
     @Override
     public void doLayout() {
         super.doLayout();
 
-        // HUD in alto
-        hudPanel.setBounds(0, 0, getWidth(), 50);
-
-        // centra overlay pausa
+        statusBarPanel.setBounds(0, 0, getWidth(), 50);
         centerPauseOverlay();
     }
 
-    private void updateHudTexts() {
+    // Aggiorna i label nella status bar
+    private void updateStatusBarTexts() {
         if (gameModel == null || wallet == null) return;
 
         int totalCoins = wallet.getCoins();
@@ -142,7 +130,7 @@ public class GamePanel extends JPanel {
         coinsLabel.setText("Monete: " + runCoins + " (Tot: " + totalCoins + ")");
     }
 
-    //posiziona elementi menù pausa
+    // posiziona elementi menù pausa
     private void setupPauseOverlay(){
         pauseOverlay.setPreferredSize(new Dimension(300, 260));
         pauseOverlay.setLayout(new GridLayout(5, 1, 10, 10));
@@ -167,10 +155,7 @@ public class GamePanel extends JPanel {
         add(pauseOverlay);
     }
 
-    /**
-     * Centra il pannello di pausa nella finestra (GamePanel).
-     * Viene chiamato ogni repaint e quando cambia la dimensione.
-     */
+    // Centra il pannello di pausa nella finestra
     private void centerPauseOverlay() {
         int pw = pauseOverlay.getPreferredSize().width;
         int ph = pauseOverlay.getPreferredSize().height;
@@ -181,7 +166,7 @@ public class GamePanel extends JPanel {
         pauseOverlay.setBounds(x, y, pw, ph);
     }
     
-    //Carica risorse da /resources/... Se una risorsa manca, resta null e si useranno le forme
+    //Carica risorse grafiche
     private void loadSprites() {
         imgCar = safeReadPng(getAbsolutePath ("/resources/car.png"));
         imgCoin = safeReadPng(getAbsolutePath ("/resources/coin.png"));
@@ -193,10 +178,7 @@ public class GamePanel extends JPanel {
         imgRiderGold = safeReadPng(getAbsolutePath ("/resources/rider_gold.png"));
     }
 
-
-    
-
-    //carica Frames
+    //carica Frames sfondo
     private void loadBackgroundFrames() {
     try {
         File dir = new File("resources/bg");
@@ -215,22 +197,17 @@ public class GamePanel extends JPanel {
         }
     }
 
-
-
     //aggiorna frame png a sfondo
     private void drawAnimatedBackground(Graphics2D g2) {
-    if (bgFrames == null || bgFrames.length == 0) {
-        g2.setColor(new Color(30, 30, 30));
-        g2.fillRect(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
-        return;
+        if (bgFrames == null || bgFrames.length == 0) {
+            g2.setColor(new Color(30, 30, 30));
+            g2.fillRect(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
+            return;
+        }
+
+        BufferedImage frame = bgFrames[bgFrameIndex];
+        g2.drawImage(frame, 0, 0, UiConstants.GAME_W, UiConstants.GAME_H, null);
     }
-
-
-    BufferedImage frame = bgFrames[bgFrameIndex];
-    g2.drawImage(frame, 0, 0, UiConstants.GAME_W, UiConstants.GAME_H, null);
-    }
-
-
 
     //metodo per caricare correttamente immagini png
     private BufferedImage safeReadPng(String path) {
@@ -256,24 +233,19 @@ public class GamePanel extends JPanel {
         return userDir + relativePath;
     }
     
-    
-    /**
-     * Collega model e wallet (monete/skin).
-     */
+    // Collega model e wallet (monete/skin)
     public void bind(GameModel model, VehicleCustomizationModel wallet, PlayerProfileModel profileModel) {
         this.gameModel = model;
         this.wallet = wallet;
         this.skin = wallet.getOwnedSkin();
     }
 
-    /**
-     * Richiamato quando cambia la skin nel menu veicolo.
-     */
+    // Richiamato quando cambia la skin nel menu veicolo.
     public void refreshSkin(VehicleCustomizationModel wallet) {
         this.skin = wallet.getOwnedSkin();
     }
 
-    //
+    // Associa la corretta skin al giocatore
     private BufferedImage riderForSkin() {
         switch (skin) {
             case RED:
@@ -288,13 +260,12 @@ public class GamePanel extends JPanel {
         }
     }
 
-    //disegna le componenti grafiche
-
+    //disegna le componenti grafiche del gioco
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        updateHudTexts();
+        updateStatusBarTexts();
 
         if (gameModel == null || bgFrames == null || bgFrames.length == 0) return;
 
@@ -372,7 +343,6 @@ public class GamePanel extends JPanel {
             }
         }
 
-
         // 9) Player con effetto blink invulnerabile
         Player p = gameModel.getPlayer();
         boolean blink = gameModel.isInvulnerable() && ((System.currentTimeMillis() / 120) % 2 == 0);
@@ -416,10 +386,10 @@ public class GamePanel extends JPanel {
         }
 
         g2.dispose();
-
-        
+ 
     }
 
+    // Testo bonus centrato
     private void drawCenteredTextInGameWorld(Graphics2D g, String text, int y) {
         FontMetrics fm = g.getFontMetrics();
         int textWidth = fm.stringWidth(text);
@@ -434,6 +404,7 @@ public class GamePanel extends JPanel {
         g.drawString(text, x, y);
     }
 
+    // Imposta le stringhe di testo dei bonus
     private void drawBonusText(Graphics2D g, String text, int y) {
         g.setFont(UiConstants.UI_FONT.deriveFont(Font.BOLD, 26f));
 

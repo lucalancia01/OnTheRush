@@ -14,17 +14,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Schermata leaderboard: mostra Top 10 ordinata.
- */
+// Schermata leaderboard
 public class LeaderboardPanel extends JPanel {
     public final JButton backButton = new JButton("← Menu");
     public final JButton clearButton = new JButton("Reset leaderboard");
 
-
     private final DefaultTableModel tableModel = new DefaultTableModel(
-            new Object[]{"Pos", "Nome", "Score (s)", "Monete run", "Data"}, 0
-    );
+                                new Object[]{"Pos", "Nome", "Score (s)", "Monete run", "Data"},
+                                0
+                                );
+    
     private final JTable table = new JTable(tableModel);
 
     private final DateTimeFormatter fmt = DateTimeFormatter
@@ -47,32 +46,29 @@ public class LeaderboardPanel extends JPanel {
         top.add(right);
         top.add(title);
 
-
         table.setRowHeight(24);
         table.setFont(UiConstants.UI_FONT);
         table.getTableHeader().setFont(UiConstants.UI_FONT);
 
-        
         JPanel south = new JPanel();
         south.setOpaque(false);
         clearButton.setFont(UiConstants.UI_FONT);
-        south.add(clearButton, BorderLayout.EAST); // accanto a backButton
-
+        south.add(clearButton, BorderLayout.EAST);
 
         add(top, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(south, BorderLayout.SOUTH);
     }
 
-    /**
-     * Aggiorna la tabella con le entry già ordinate (Top 10).
-     */
+    // aggiorna la tabella con le entry (già ordinate in config.txt)
     public void setEntries(List<LeaderboardEntry> entries) {
         tableModel.setRowCount(0);
-        int pos = 1;
-        for (LeaderboardEntry e : entries) {
+
+        for (int i = 0; i < entries.size(); i++) {
+            LeaderboardEntry e = entries.get(i);
+
             tableModel.addRow(new Object[]{
-                    pos++,
+                    i + 1,          // posizione
                     e.getName(),
                     e.getScore(),
                     e.getCoinsRun(),
@@ -105,11 +101,12 @@ public class LeaderboardPanel extends JPanel {
         return userDir + relativePath;
     }
 
+    // sfondo
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         BufferedImage leaderboardBackground = safeReadPng(getAbsolutePath ("/resources/leaderboard_background.png"));
         if (leaderboardBackground != null) {
-                 g.drawImage(leaderboardBackground, 0, 0, UiConstants.WINDOW_W, UiConstants.WINDOW_H, this);
+                 g.drawImage(leaderboardBackground, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this);
             }
     }
 }

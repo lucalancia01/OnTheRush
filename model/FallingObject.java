@@ -2,10 +2,7 @@ package model;
 
 import java.awt.Rectangle;
 
-/**
- * Oggetto che cade dall'alto verso il basso.
- * Base comune per ostacoli e monete.
- */
+// Classe astratta, scheletro per gli oggetti che cadono
 public abstract class FallingObject {
     protected int x, y, w, h;
 

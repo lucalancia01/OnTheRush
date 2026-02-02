@@ -10,13 +10,7 @@ import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-/**
- * Controller del gioco:
- * - gestisce input da tastiera (dx/sx, pausa, restart)
- * - gestisce game loop tramite Swing Timer (~60 FPS)
- *
- * Importante: Swing Timer esegue su EDT; per un progetto universitario va bene.
- */
+// Controller del gioco
 public class GameController {
     private final GameModel model;
     private final VehicleCustomizationModel wallet;
@@ -41,6 +35,7 @@ public class GameController {
         attachInput();
     }
 
+    // gestisce l'input da tastiera
     private void attachInput() {
         view.addKeyListener(new KeyAdapter() {
             @Override public void keyPressed(KeyEvent e) {
@@ -65,34 +60,27 @@ public class GameController {
         });
     }
 
-    /**
-     * Avvia una partita. Le vite vengono calcolate in base agli upgrade nel model.
-     */
+    // Avvia una partita
     public void startGame(PlayerProfileModel profile) {
         this.profile = profile;
 
         paused = false;
         view.pauseOverlay.setVisible(false);
 
-        model.start(wallet); // wallet contiene extraLives acquistate
+        model.start(wallet);
         timer.start();
 
-        // Fondamentale: il pannello deve avere focus per ricevere i tasti
         view.requestFocusInWindow();
     }
 
-    /**
-     * Ferma il loop (es. quando si esce dal gioco).
-     */
+    // Ferma il loop di gioco
     public void stopGame() {
         timer.stop();
         paused = false;
         view.pauseOverlay.setVisible(false);
     }
 
-    /**
-     * Mostra/nasconde overlay pausa e blocca gli update logici.
-     */
+    // Entra in modalità pausa
     public void togglePause() {
         paused = !paused;
         view.pauseOverlay.setVisible(paused);
@@ -100,6 +88,7 @@ public class GameController {
         view.repaint();
     }
 
+    // Gestione istante di gioco
     private void tick() {
         if (paused) {
             view.repaint();

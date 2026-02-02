@@ -3,8 +3,10 @@ package controller;
 import model.*;
 import view.*;
 
+// Gestione start applicazione
 public class AppController {
 
+    // Frame
     private MainFrame frame;
 
     // Views
@@ -27,9 +29,9 @@ public class AppController {
     private GameController gameController;
     private CustomizationController customizationController;
 
+    // avvia l'applicazione
     public void start() {
 
-        // ===== MODELS =====
         walletModel = new VehicleCustomizationModel();
         settingsModel = new SettingsModel();
         leaderboardModel = new LeaderboardModel();
@@ -39,13 +41,11 @@ public class AppController {
 
         // prima di caricare audio: inizializza settingsModel
         settingsModel = new SettingsModel();
-        settingsModel.setSoundEnabled(utils.Config.getInstance().isSoundEnabled()); // oppure come lo leggi tu
+        settingsModel.setSoundEnabled(utils.Config.getInstance().isSoundEnabled());
 
         //carica audio
         try {
             audio = new AudioModel("MenuMusic.wav","GameplayMusic.wav");
-
-            // NON play diretto: usa la funzione che rispetta soundEnabled
             syncMusicWithScreen(MainFrame.START);
 
         } catch (Exception ex) {
@@ -53,7 +53,7 @@ public class AppController {
             audio = null;
         }
 
-        // ===== VIEWS =====
+        // Views
         frame = new MainFrame();
         startPanel = new StartPanel();
         gamePanel = new GamePanel();
@@ -61,18 +61,20 @@ public class AppController {
         settingsPanel = new GeneralCustomizationPanel();
         leaderboardPanel = new LeaderboardPanel();
 
+        // associa wallet a player
         gamePanel.bind(gameModel, walletModel, profileModel);
 
-        // ===== CONTROLLERS =====
+        // Controllers
         nav = new NavigationController(frame);
         gameController = new GameController(gameModel, walletModel, gamePanel);
         customizationController =
-                new CustomizationController(walletModel, settingsModel, vehiclePanel, settingsPanel, audio);
+                new CustomizationController(walletModel, settingsModel, leaderboardModel, vehiclePanel,
+                     settingsPanel, leaderboardPanel, audio);
 
         // Pre-carica nome giocatore
         startPanel.nameField.setText(profileModel.getPlayerName());
 
-        // ===== SCREENS =====
+        // Screens
         frame.addScreen(MainFrame.START, startPanel);
         frame.addScreen(MainFrame.GAME, gamePanel);
         frame.addScreen(MainFrame.VEHICLE, vehiclePanel);
@@ -82,7 +84,7 @@ public class AppController {
         wireButtons();
 
         frame.setVisible(true);
-        nav.goTo(MainFrame.START);
+        nav.goTo(MainFrame.START); //mostra la schermata iniziale
     }
 
     // metodo per semplificare la gestione audio nello switch tra due schermate
@@ -91,7 +93,7 @@ public class AppController {
         
         // Se il suono è disabilitato, non deve partire nulla
         if (!settingsModel.isSoundEnabled()) {
-            audio.pause();   // oppure audio.setMuted(true)
+            audio.pause();
             return;
         }
 
@@ -102,6 +104,7 @@ public class AppController {
         }
     }
 
+    // Contiene tutti i listener necessari allo spostamento tra le varie schermate
     private void wireButtons() {
 
         // START -> GAME
@@ -136,23 +139,10 @@ public class AppController {
             nav.goTo(MainFrame.LEADERBOARD);
         });
 
-        // LEADERBOARD MANAGMENT
+        // LEADERBOARD -> START
         leaderboardPanel.backButton.addActionListener(e -> {
             syncMusicWithScreen(MainFrame.START);
             nav.goTo(MainFrame.START);
-        });
-
-        leaderboardPanel.clearButton.addActionListener(e -> {
-            int res = javax.swing.JOptionPane.showConfirmDialog(
-                    leaderboardPanel,
-                    "Vuoi davvero cancellare la leaderboard?",
-                    "Conferma",
-                    javax.swing.JOptionPane.YES_NO_OPTION
-            );
-            if (res == javax.swing.JOptionPane.YES_OPTION) {
-                utils.Config.getInstance().resetLeaderboard();
-                leaderboardPanel.setEntries(leaderboardModel.getTop10());
-            }
         });
 
         // GAME -> START
@@ -168,18 +158,20 @@ public class AppController {
             gamePanel.requestFocusInWindow();
         });
 
-        // PAUSA -> RESUME
+        // PAUSE -> RESUME
         gamePanel.resumeButton.addActionListener(e -> {
             gameController.togglePause();
             gamePanel.requestFocusInWindow();
         });
 
+        // PAUSE -> START
         gamePanel.toStartButton.addActionListener(e -> {
             gameController.stopGame();
             syncMusicWithScreen(MainFrame.START);
             nav.goTo(MainFrame.START);
         });
 
+        // PAUSE -> VEHICLE
         gamePanel.toVehicleButton.addActionListener(e -> {
             gameController.stopGame();
             vehiclePanel.updateCoins(walletModel);
@@ -188,6 +180,7 @@ public class AppController {
             nav.goTo(MainFrame.VEHICLE);
         });
 
+        // PAUSE -> SETTINGS
         gamePanel.toSettingsButton.addActionListener(e -> {
             gameController.stopGame();
             settingsPanel.bind(settingsModel);

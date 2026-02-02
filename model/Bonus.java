@@ -2,6 +2,7 @@ package model;
 
 import java.awt.Rectangle;
 
+// Bonus velocità player
 public class Bonus extends FallingObject {
 
     private static final double HITBOX_SCALE = 0.5;

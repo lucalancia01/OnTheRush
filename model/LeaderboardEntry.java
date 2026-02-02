@@ -2,10 +2,7 @@ package model;
 
 import java.time.Instant;
 
-/**
- * Singola entry della leaderboard.
- * Contiene: nome, score (secondi), monete raccolte nella run, timestamp.
- */
+// Gestione singola entry della leaderboard
 public class LeaderboardEntry {
     private final String name;
     private final int score;

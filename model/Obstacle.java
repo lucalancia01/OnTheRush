@@ -2,9 +2,7 @@ package model;
 
 import java.awt.Rectangle;
 
-/**
- * Ostacolo: collisione => perde vita (o game over se vite finite).
- */
+// Ostacolo da evitare
 public class Obstacle extends FallingObject {
 
     private static final double HITBOX_SCALE = 0.75;

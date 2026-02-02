@@ -2,15 +2,7 @@ package model;
 
 import utils.Config;
 
-/**
- * Modello che gestisce:
- * - monete totali
- * - skin selezionata
- * - upgrade permanente vite extra
- *
- * Tutto persistito nel Config unico.
- * I costi (skin e vita extra) arrivano dal Config.
- */
+// Modello che gestisce monete totali, skin selezionata e upgrade vite extra
 public class VehicleCustomizationModel {
     private final Config cfg = Config.getInstance();
 
@@ -24,29 +16,29 @@ public class VehicleCustomizationModel {
         this.extraLives = cfg.getExtraLives();
     }
 
+    // getters
     public int getCoins() { return coins; }
     public VehicleSkin getOwnedSkin() { return ownedSkin; }
     public int getExtraLives() { return extraLives; }
 
-    /**
-     * Legge il costo corrente dell'upgrade vita extra dal config.
-     * (così anche questo prezzo è modificabile da file)
-     */
+    // Legge il costo corrente dell'upgrade vita extra dal config
     public int getExtraLifeCost() {
         return cfg.getExtraLifeCost();
     }
 
+    // aggiorna coins totali
     public void addCoins(int amount) {
         coins = Math.max(0, coins + amount);
         cfg.setPlayerCoins(coins);
         cfg.save();
     }
 
+    // Acquista skin
     public boolean buyAndSelectSkin(VehicleSkin skin) {
         if (skin == null) return false;
         if (ownedSkin == skin) return true;
 
-        int cost = skin.getCost(); // costo da Config
+        int cost = skin.getCost();
 
         if (cost <= 0) {
             ownedSkin = skin;
@@ -68,10 +60,7 @@ public class VehicleCustomizationModel {
         return false;
     }
 
-    /**
-     * Compra 1 upgrade permanente di vita extra.
-     * Il costo arriva dal Config (shop.extraLife.cost).
-     */
+    // Compra vita extra
     public boolean buyExtraLifeUpgrade() {
         int cost = getExtraLifeCost();
         if (coins >= cost) {

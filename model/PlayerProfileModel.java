@@ -2,9 +2,7 @@ package model;
 
 import utils.Config;
 
-/**
- * Profilo giocatore: salva/legge il nome dal Config unico.
- */
+// regola il profilo giocatore
 public class PlayerProfileModel {
     private final Config cfg = Config.getInstance();
     private String playerName;
@@ -14,6 +12,7 @@ public class PlayerProfileModel {
         this.playerName = cfg.getPlayerName();
     }
 
+    // getters
     public String getPlayerName() {
         return playerName;
     }
@@ -25,9 +24,7 @@ public class PlayerProfileModel {
     public void setBonusStateTrue() {
         bonusState = true;
     }
-    /**
-     * Salva nome nel file unico di config.
-     */
+    // Salva nome nel file config
     public void setPlayerName(String name) {
         cfg.setPlayerName(name);
         cfg.save();

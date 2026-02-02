@@ -3,39 +3,39 @@ package controller;
 import model.SettingsModel;
 import model.VehicleCustomizationModel;
 import model.VehicleSkin;
+import model.LeaderboardModel;
 import model.AudioModel;
 import view.GeneralCustomizationPanel;
 import view.VehicleCustomizationPanel;
+import view.LeaderboardPanel;
 
 import javax.swing.*;
 
-/**
- * Controller per i menu di personalizzazione:
- * - skin veicolo
- * - upgrade vite extra
- * - impostazioni (audio)
- *
- * Nota MVC: qui aggiorniamo SOLO le view di menu.
- * La skin del gioco viene aggiornata quando si entra nel Game (in AppController).
- */
+// Gestione dei menu di personalizzazione e leaderboard
 public class CustomizationController {
     private final VehicleCustomizationModel vehicleModel;
     private final SettingsModel settingsModel;
+    private final LeaderboardModel leaderboardModel;
 
     private final VehicleCustomizationPanel vehicleView;
     private final GeneralCustomizationPanel settingsView;
+    private final LeaderboardPanel leaderboardView;
 
     private AudioModel audio;
 
     public CustomizationController(VehicleCustomizationModel vehicleModel,
                                    SettingsModel settingsModel,
+                                   LeaderboardModel leaderboardModel,
                                    VehicleCustomizationPanel vehicleView,
                                    GeneralCustomizationPanel settingsView,
+                                   LeaderboardPanel leaderboardView,
                                     AudioModel audio) {
         this.vehicleModel = vehicleModel;
         this.settingsModel = settingsModel;
+        this.leaderboardModel = leaderboardModel;
         this.vehicleView = vehicleView;
         this.settingsView = settingsView;
+        this.leaderboardView = leaderboardView;
         this.audio = audio; 
 
         bind();
@@ -90,22 +90,35 @@ public class CustomizationController {
 
          //riprisino impostazioni default
         settingsView.restoreDefaultsButton.addActionListener(e -> {
-            // 1) reset nel file
+            // reset nel file
             utils.Config.getInstance().resetUiAndSettingsToDefaults();
 
-            // 2) riallinea model e view (sound subito)
+            // riallinea model e view
             settingsModel.setSoundEnabled(utils.Config.getInstance().isSoundEnabled());
             settingsView.soundCheck.setSelected(settingsModel.isSoundEnabled());
             boolean enabled = settingsModel.isSoundEnabled();
             if (audio != null) audio.setMuted(!enabled);
 
-
-            // alternativa (feedback più forte):
+            // Informa che le impostazioni sono state ripristinate
             JOptionPane.showMessageDialog (settingsView, 
                 "Impostazioni ripristinate.\nLe modifiche saranno effettive al prossimo avvio.",
                 "OK", 
                 JOptionPane.INFORMATION_MESSAGE
             );
+        });
+
+        // ripristino leaderboard
+        leaderboardView.clearButton.addActionListener(e -> {
+            int res = javax.swing.JOptionPane.showConfirmDialog(
+                    leaderboardView,
+                    "Vuoi davvero cancellare la leaderboard?",
+                    "Conferma",
+                    javax.swing.JOptionPane.YES_NO_OPTION
+            );
+            if (res == javax.swing.JOptionPane.YES_OPTION) {
+                utils.Config.getInstance().resetLeaderboard();
+                leaderboardView.setEntries(leaderboardModel.getTop10());
+            }
         });
         
         // Impostazioni audio
@@ -119,12 +132,15 @@ public class CustomizationController {
         if (!enabled) {
             audio.pause();
         } else {
-            // quando riattivi, riparti dalla traccia "di menu"
-            // (oppure dalla traccia della schermata corrente se la conosci)
+            /*
+            * quando riattivi, riparti dalla traccia "di menu"
+            * (ci si troverà sempre nella schermata settings 
+            * quando verà spuntata la checkbox)
+            */
             audio.play(AudioModel.Track.A);
         }
-    });
-
+        
+        });
 
     }
 }

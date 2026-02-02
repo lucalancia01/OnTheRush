@@ -13,12 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- * Menu personalizzazione veicolo:
- * - mostra monete totali
- * - permette selezione/compra skin
- * - permette comprare upgrade vite extra (permanente)
- */
+// view del menù personalizzazione veicolo
 public class VehicleCustomizationPanel extends JPanel {
     public final JButton backButton = new JButton("← Menu");
 
@@ -26,11 +21,10 @@ public class VehicleCustomizationPanel extends JPanel {
     private final JLabel extraLivesLabel = new JLabel();
     private final JLabel extraLifeCostLabel = new JLabel();
 
-    private final VehicleSkin[] skins = VehicleSkin.values();     // array di appoggio
-    private final JComboBox<String> skinCombo = new JComboBox<>(); // ora contiene String
+    private final VehicleSkin[] skins = VehicleSkin.values();
+    private final JComboBox<String> skinCombo = new JComboBox<>();
 
     public final JButton buySelectButton = new JButton("Compra / Seleziona");
-
     public final JButton buyExtraLifeButton = new JButton("Compra Vita Extra");
 
     public VehicleCustomizationPanel() {
@@ -49,15 +43,15 @@ public class VehicleCustomizationPanel extends JPanel {
         top.add(right);
         top.add(title);
 
-
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
+        center.setOpaque(false);
+        
         coinsLabel.setFont(UiConstants.UI_FONT);
         extraLivesLabel.setFont(UiConstants.UI_FONT);
         extraLifeCostLabel.setFont(UiConstants.UI_FONT);
-
+        
         coinsLabel.setForeground(Color.WHITE);
         extraLivesLabel.setForeground(Color.WHITE);
         extraLifeCostLabel.setForeground(Color.WHITE);
@@ -88,24 +82,18 @@ public class VehicleCustomizationPanel extends JPanel {
         center.add(buyExtraLifeButton);
         center.add(Box.createVerticalStrut(6));
         center.add(extraLifeCostLabel);
-
-        center.setOpaque(false);
         
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
     }
 
-    // associa alla skin il relativo costo
+    // crea la stringa associando alla skin il relativo costo
     private void reloadSkinComboItems() {
         String[] items = new String[skins.length];
 
         for (int i = 0; i < skins.length; i++) {
             VehicleSkin skin = skins[i];
-
-            // <-- QUI prendi il costo da Config.getSource()
             int cost = Config.getInstance().getSkinCost(skin.name());
-
-
             items[i] = skin.name() + " - (" + cost + ")";
         }
 
@@ -117,7 +105,6 @@ public class VehicleCustomizationPanel extends JPanel {
         String sel = (String) skinCombo.getSelectedItem();
         if (sel == null) return null;
 
-        // es: "RED - (100)"  -> "RED"
         int idx = sel.indexOf(" - ");
         String skinName = (idx >= 0) ? sel.substring(0, idx) : sel;
 
@@ -125,17 +112,18 @@ public class VehicleCustomizationPanel extends JPanel {
     }
 
 
-
+    // crea label monete
     public void updateCoins(VehicleCustomizationModel model) {
         coinsLabel.setText("Monete disponibili: " + model.getCoins());
     }
 
+    // crea label vite extra
     public void updateExtraLives(VehicleCustomizationModel model) {
         extraLivesLabel.setText("Vite extra acquistate: " + model.getExtraLives());
         extraLifeCostLabel.setText("Costo vita extra: " + model.getExtraLifeCost() + " monete");
     }
 
-    //metodo per caricare correttamente immagini png
+    // metodo per caricare correttamente immagini png
     private BufferedImage safeReadPng(String path) {
     try {
         if (path == null) return null;
@@ -147,7 +135,7 @@ public class VehicleCustomizationPanel extends JPanel {
         }
     }
 
-    //restituisce il cammino assoluto
+    // restituisce il cammino assoluto
     private String getAbsolutePath(String relativePath) {
         Properties props = System.getProperties();
         String userDir = props.getProperty("user.dir");
@@ -159,11 +147,12 @@ public class VehicleCustomizationPanel extends JPanel {
         return userDir + relativePath;
     }
 
+    // sfondo
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         BufferedImage vehicleCustBack = safeReadPng(getAbsolutePath ("/resources/settings_background.png"));
         if (vehicleCustBack != null) {
-                 g.drawImage(vehicleCustBack, 0, 0, UiConstants.WINDOW_W, UiConstants.WINDOW_H, this);
+                 g.drawImage(vehicleCustBack, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this);
             }
     }
 

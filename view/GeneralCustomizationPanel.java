@@ -10,9 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- * Menu impostazioni generali (es. audio).
- */
+// Menu impostazioni generali
 public class GeneralCustomizationPanel extends JPanel {
     public final JButton backButton = new JButton("← Menu");
     public final JButton restoreDefaultsButton = new JButton("Ripristina impostazioni");
@@ -20,10 +18,7 @@ public class GeneralCustomizationPanel extends JPanel {
 
     public GeneralCustomizationPanel() {
         setLayout(new BorderLayout());
-
-
-        
-          
+ 
         // destra: pannello vuoto (bilancia il layout)
         JPanel right = new JPanel();
         right.setOpaque(false);
@@ -37,13 +32,6 @@ public class GeneralCustomizationPanel extends JPanel {
         top.add(right);
         top.add(title);
 
-        
-       
-       
-       
-        
-
-        
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setOpaque(false);
@@ -57,8 +45,6 @@ public class GeneralCustomizationPanel extends JPanel {
         center.add(Box.createVerticalStrut(20));
         center.add(restoreDefaultsButton);
         center.add(Box.createVerticalGlue());
-
-
 
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
@@ -89,16 +75,16 @@ public class GeneralCustomizationPanel extends JPanel {
         return userDir + relativePath;
     }
 
+    // sfondo
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         BufferedImage customizationBackground = safeReadPng(getAbsolutePath ("/resources/settings_background.png"));
         if (customizationBackground != null) {
-                 g.drawImage(customizationBackground, 0, 0, UiConstants.WINDOW_W, UiConstants.WINDOW_H, this);
+                 g.drawImage(customizationBackground, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, this);
             }
     }
-    /**
-     * Mostra nella UI lo stato attuale delle impostazioni.
-     */
+    
+    // Mostra se il JCheckBox è selezionato
     public void bind(SettingsModel settings) {
         soundCheck.setSelected(settings.isSoundEnabled());
     }

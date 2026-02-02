@@ -2,9 +2,7 @@ package model;
 
 import java.awt.Rectangle;
 
-/**
- * Moneta: collisione => incrementa monete totali + monete run.
- */
+// Monete
 public class Coin extends FallingObject {
     private final int value;
 

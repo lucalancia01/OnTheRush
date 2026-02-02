@@ -2,6 +2,7 @@ package model;
 
 import java.awt.Rectangle;
 
+// Score bonus
 public class Multiplier extends FallingObject {
 
     private static final double HITBOX_SCALE = 0.5;
