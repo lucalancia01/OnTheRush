@@ -362,7 +362,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 7) Multiplier
+        // 8) Multiplier
         for (Multiplier m : gameModel.getMultiplier()) {
             if (imgx2 != null) {
                 g2.drawImage(imgx2, m.getX(), m.getY(), m.getW(), m.getH(), null);
@@ -386,7 +386,17 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 10) Game over
+        // 10) BONUS SPEED
+        if (gameModel.isBonusActive()) {
+            drawBonusText(g2, "PLAYER SPEED x2!", (UiConstants.GAME_H / 2) - 30);
+        }   
+
+        // 11)BONUS PUNTEGGIO
+        if (gameModel.isX2Active()) {
+            drawBonusText(g2, "SCORE x2", (UiConstants.GAME_H / 2) + 30);
+        }
+
+        // 12) Game over
         if (gameModel.getState() == GameModel.State.GAME_OVER) {
             int boxW = 420;
             int boxH = 180;
@@ -425,9 +435,15 @@ public class GamePanel extends JPanel {
     }
 
     private void drawBonusText(Graphics2D g, String text, int y) {
+        g.setFont(UiConstants.UI_FONT.deriveFont(Font.BOLD, 26f));
+
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int x = (UiConstants.GAME_W - textWidth) / 2;
+
         g.setColor(Color.YELLOW);
-        g.setFont(UiConstants.UI_FONT.deriveFont(Font.BOLD, 28f));
-        drawCenteredText(g, text, y);
+        g.drawString(text, x, y);
     }
+
 }
 //versione 30/01/26
