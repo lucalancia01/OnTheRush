@@ -264,10 +264,10 @@ public class GamePanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         updateStatusBarTexts();
 
-        if (gameModel == null || bgFrames == null || bgFrames.length == 0) return;
+        if (gameModel == null) return; // solo questo deve bloccare
 
         Graphics2D g2 = (Graphics2D) g.create();
 
@@ -275,21 +275,27 @@ public class GamePanel extends JPanel {
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, getWidth(), getHeight());
 
-        // 2) Disegna sfondo proporzionato e centrato
-        BufferedImage bg = bgFrames[bgFrameIndex];
-        int gifW = bg.getWidth();
-        int gifH = bg.getHeight();
+        // 2) Sfondo: se ho i frame li disegno, altrimenti fallback a tinta unita
+        if (bgFrames != null && bgFrames.length > 0) {
+            BufferedImage bg = bgFrames[bgFrameIndex];
+            int gifW = bg.getWidth();
+            int gifH = bg.getHeight();
 
-        double scaleX = (double) getWidth() / gifW;
-        double scaleY = (double) getHeight() / gifH;
-        double scale = Math.min(scaleX, scaleY);
+            double scaleX = (double) getWidth() / gifW;
+            double scaleY = (double) getHeight() / gifH;
+            double scale = Math.min(scaleX, scaleY);
 
-        int drawW = (int) (gifW * scale);
-        int drawH = (int) (gifH * scale);
-        int drawX = (getWidth() - drawW) / 2;
-        int drawY = (getHeight() - drawH) / 2;
+            int drawW = (int) (gifW * scale);
+            int drawH = (int) (gifH * scale);
+            int drawX = (getWidth() - drawW) / 2;
+            int drawY = (getHeight() - drawH) / 2;
 
-        g2.drawImage(bg, drawX, drawY, drawW, drawH, null);
+            g2.drawImage(bg, drawX, drawY, drawW, drawH, null);
+        } else {
+            // fallback: sfondo semplice
+            g2.setColor(new Color(30, 30, 30));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
 
         // 3) Calcola offset per centrare game world
         int offX = (getWidth() - UiConstants.GAME_W) / 2;
@@ -299,11 +305,11 @@ public class GamePanel extends JPanel {
         g2.translate(offX, offY);
         g2.setClip(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
 
-        // 5) Disegna area di gioco di base se sfondo non sufficiente
+        // 5) Disegna area di gioco di base
         g2.setColor(new Color(30, 30, 30));
         g2.fillRect(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
 
-        // 7) Ostacoli
+        // 6) Ostacoli
         for (Obstacle o : gameModel.getObstacles()) {
             if (imgCar != null) {
                 g2.drawImage(imgCar, o.getX(), o.getY(), o.getW(), o.getH(), null);
@@ -313,7 +319,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 8) Monete
+        // 7) Monete
         for (Coin c : gameModel.getCoins()) {
             if (imgCoin != null) {
                 g2.drawImage(imgCoin, c.getX(), c.getY(), c.getW(), c.getH(), null);
@@ -323,7 +329,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 7) Bonus
+        // 8) Bonus
         for (Bonus b : gameModel.getBonus()) {
             if (imgBonus != null) {
                 g2.drawImage(imgBonus, b.getX(), b.getY(), b.getW(), b.getH(), null);
@@ -333,7 +339,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 8) Multiplier
+        // 9) Multiplier
         for (Multiplier m : gameModel.getMultiplier()) {
             if (imgx2 != null) {
                 g2.drawImage(imgx2, m.getX(), m.getY(), m.getW(), m.getH(), null);
@@ -343,7 +349,7 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 9) Player con effetto blink invulnerabile
+        // 10) Player con effetto blink invulnerabile
         Player p = gameModel.getPlayer();
         boolean blink = gameModel.isInvulnerable() && ((System.currentTimeMillis() / 120) % 2 == 0);
         if (!blink) {
@@ -356,17 +362,17 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 10) BONUS SPEED
+        // 11) BONUS SPEED
         if (gameModel.isBonusActive()) {
             drawBonusText(g2, "PLAYER SPEED x2!", (UiConstants.GAME_H / 2) - 30);
         }   
 
-        // 11)BONUS PUNTEGGIO
+        // 12)BONUS PUNTEGGIO
         if (gameModel.isX2Active()) {
             drawBonusText(g2, "SCORE x2", (UiConstants.GAME_H / 2) + 30);
         }
 
-        // 12) Game over
+        // 13) Game over
         if (gameModel.getState() == GameModel.State.GAME_OVER) {
             int boxW = 420;
             int boxH = 180;
@@ -386,7 +392,6 @@ public class GamePanel extends JPanel {
         }
 
         g2.dispose();
- 
     }
 
     // Testo bonus centrato
