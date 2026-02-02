@@ -22,20 +22,35 @@ public class Config {
     // costruttore
     private Config() {
         this.configFilePath = getConfigFile();
-        loadFile();
+        loadOrCreate();
     }
 
-    // Carica conf/config.txt;
-    private void loadFile() {
+    // Carica conf/config.txt; se non esiste lo crea con valori di default.
+    private void loadOrCreate() {
         try {
             File f = new File(this.configFilePath);
 
+            // Se non esiste: crea cartella conf/ e file con default
+            if (!f.exists()) {
+                File parent = f.getParentFile();
+                if (parent != null && !parent.exists()) parent.mkdirs();
+
+                this.properties = new Properties();
+                setDefaults();
+                save(); // crea fisicamente il file
+                return;
+            }
+
+            // Se esiste: carica
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(new FileInputStream(f), "ISO-8859-1")
             );
             this.properties = new Properties();
             this.properties.load(br);
             br.close();
+            
+            // Se mancano chiavi essenziali, le aggiunge senza rompere il file
+            ensureDefaultsPresent();
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -74,6 +89,39 @@ public class Config {
         // Leaderboard
         properties.setProperty("leaderboard.count", "0");
     }
+
+    
+    // Se il file esiste ma mancano alcune chiavi, le aggiunge con default.
+    private void ensureDefaultsPresent() {
+        ensureKey("ui.window_size", "720");
+
+        ensureKey("ui.font_family", "SansSerif");
+        ensureKey("ui.font_title_size", "28");
+        ensureKey("ui.font_ui_size", "16");
+
+        ensureKey("player.name", "Player");
+        ensureKey("player.coins", "0");
+        ensureKey("player.vehicleSkin", "DEFAULT");
+        ensureKey("player.extraLives", "0");
+
+        ensureKey("shop.skin.DEFAULT", "0");
+        ensureKey("shop.skin.RED", "50");
+        ensureKey("shop.skin.BLUE", "50");
+        ensureKey("shop.skin.GOLD", "150");
+        ensureKey("shop.extraLife.cost", "120");
+
+        ensureKey("settings.soundEnabled", "true");
+
+        ensureKey("leaderboard.count", "0");
+    }
+
+    //serve per verificare se c'è il campo corrispondente e in caso negativo lo crea
+    private void ensureKey(String key, String defaultValue) {
+        if (properties.getProperty(key) == null) {
+            properties.setProperty(key, defaultValue);
+        }
+    }
+
 
     //serve quando si ha bisogno del percorso relativo
     private String getConfigFile() {
