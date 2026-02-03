@@ -263,13 +263,22 @@ public class GamePanel extends JPanel {
 
         if (gameModel == null) return; // solo questo deve bloccare
 
+        // 1) bordi neri (letterboxing)
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, getWidth(), getHeight());
+
+        // 2) calcolo offset per centrare il game world (480x720)
+        int offX = (getWidth() - UiConstants.GAME_W) / 2;
+        int offY = (getHeight() - UiConstants.GAME_H) / 2;
+
+        // 3) crea un contesto grafico separato e trasla
         Graphics2D g2 = (Graphics2D) g.create();
+        g2.translate(offX, offY);
 
-        // 1) Bordo nero letterboxing
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, getWidth(), getHeight());
-
-        // 2) Sfondo: se ho i frame li disegno, altrimenti fallback a tinta unita
+        // 4) limita il disegno all'area di gioco
+        g2.setClip(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
+        
+        // 5) Sfondo: se ho i frame li disegno, altrimenti fallback a tinta unita
         if (bgFrames != null && bgFrames.length > 0) {
             BufferedImage bg = bgFrames[bgFrameIndex];
             int gifW = bg.getWidth();
@@ -284,24 +293,12 @@ public class GamePanel extends JPanel {
             int drawX = (getWidth() - drawW) / 2;
             int drawY = (getHeight() - drawH) / 2;
 
-            g2.drawImage(bg, drawX, drawY, drawW, drawH, null);
+            g.drawImage(bg, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, null);
         } else {
             // fallback: sfondo semplice
             g2.setColor(new Color(30, 30, 30));
             g2.fillRect(0, 0, getWidth(), getHeight());
         }
-
-        // 3) Calcola offset per centrare game world
-        int offX = (getWidth() - UiConstants.GAME_W) / 2;
-        int offY = (getHeight() - UiConstants.GAME_H) / 2;
-
-        // 4) Contesto grafico per game world
-        g2.translate(offX, offY);
-        g2.setClip(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
-
-        // 5) Disegna area di gioco di base
-        g2.setColor(new Color(30, 30, 30));
-        g2.fillRect(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
 
         // 6) Ostacoli
         for (Obstacle o : gameModel.getObstacles()) {
