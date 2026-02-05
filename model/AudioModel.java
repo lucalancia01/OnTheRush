@@ -19,7 +19,7 @@ public class AudioModel {
 
     private Track currentTrack = null;
 
-    // Posizione (per resume) in microsecondi
+    // Posizione in microsecondi per il resume
     private long posA = 0L;
     private long posB = 0L;
 
@@ -31,9 +31,6 @@ public class AudioModel {
         this.clipA = loadClipFromResources("/audio/" + Objects.requireNonNull(fileA));
         this.clipB = loadClipFromResources("/audio/" + Objects.requireNonNull(fileB));
 
-        // opzionale: parti “pronto” ma fermo
-        stopInternal(this.clipA);
-        stopInternal(this.clipB);
     }
 
     // Riproduce in loop continuo la traccia scelta
@@ -49,7 +46,7 @@ public class AudioModel {
         saveCurrentPosition();
         stopCurrentClip();
 
-        // attiva la nuova
+        // carica la prossima traccia
         currentTrack = track;
         Clip clip = getCurrentClip();
 
@@ -111,6 +108,7 @@ public class AudioModel {
         return null;
     }
 
+    // stop della traccia
     private void stopCurrentClip() {
         Clip c = getCurrentClip();
         if (c != null && c.isOpen()) {
@@ -118,6 +116,7 @@ public class AudioModel {
         }
     }
 
+    // salva la posizione della traccia per la ripartenza
     private void saveCurrentPosition() {
         Clip c = getCurrentClip();
         if (c == null || !c.isOpen()) return;
@@ -125,13 +124,6 @@ public class AudioModel {
         long pos = c.getMicrosecondPosition();
         if (currentTrack == Track.A) posA = pos;
         if (currentTrack == Track.B) posB = pos;
-    }
-
-    private void stopInternal(Clip clip) {
-        if (clip != null && clip.isOpen()) {
-            clip.stop();
-            clip.setMicrosecondPosition(0L);
-        }
     }
 
     // applica muto

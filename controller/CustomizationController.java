@@ -40,7 +40,8 @@ public class CustomizationController {
 
         bind();
     }
-
+    
+    // Combina view e model per aggiornare personalizzazione impostazioni e suono
     private void bind() {
         vehicleView.updateCoins(vehicleModel);
         vehicleView.updateExtraLives(vehicleModel);

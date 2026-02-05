@@ -88,7 +88,7 @@ public class GameController {
         view.repaint();
     }
 
-    // Gestione istante di gioco
+    // fa repaint solo quando è in pausa per mostrare overlay
     private void tick() {
         if (paused) {
             view.repaint();

@@ -1,7 +1,6 @@
 package controller;
 
-import controller.AppController;
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 
 public class Main {
 

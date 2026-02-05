@@ -2,12 +2,8 @@ package view;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import model.*;
@@ -46,10 +42,8 @@ public class GamePanel extends JPanel {
     
     // Sfondo animato da PNG
     private int bgFrameIndex = 0;
-    private long lastBgFrameTime = 0;
     private static final int BG_FRAME_DELAY = 70; // 14 fps
     private BufferedImage[] bgFrames;
-    private int bgIndex = 0;
     private Timer bgTimer;
 
     public GamePanel() {
@@ -201,18 +195,6 @@ public class GamePanel extends JPanel {
         }
     }
 
-    //aggiorna frame png a sfondo
-    private void drawAnimatedBackground(Graphics2D g2) {
-        if (bgFrames == null || bgFrames.length == 0) {
-            g2.setColor(new Color(30, 30, 30));
-            g2.fillRect(0, 0, UiConstants.GAME_W, UiConstants.GAME_H);
-            return;
-        }
-
-        BufferedImage frame = bgFrames[bgFrameIndex];
-        g2.drawImage(frame, 0, 0, UiConstants.GAME_W, UiConstants.GAME_H, null);
-    }
-
     // Metodo per caricare correttamente le immagini dal classpath
     private BufferedImage readPngFromClasspath(String resourcePath) {
         try {
@@ -281,17 +263,6 @@ public class GamePanel extends JPanel {
         // 5) Sfondo: se ho i frame li disegno, altrimenti fallback a tinta unita
         if (bgFrames != null && bgFrames.length > 0) {
             BufferedImage bg = bgFrames[bgFrameIndex];
-            int gifW = bg.getWidth();
-            int gifH = bg.getHeight();
-
-            double scaleX = (double) getWidth() / gifW;
-            double scaleY = (double) getHeight() / gifH;
-            double scale = Math.min(scaleX, scaleY);
-
-            int drawW = (int) (gifW * scale);
-            int drawH = (int) (gifH * scale);
-            int drawX = (getWidth() - drawW) / 2;
-            int drawY = (getHeight() - drawH) / 2;
 
             g.drawImage(bg, 0, 0, UiConstants.WINDOW_SIZE, UiConstants.WINDOW_SIZE, null);
         } else {
@@ -390,13 +361,6 @@ public class GamePanel extends JPanel {
         FontMetrics fm = g.getFontMetrics();
         int textWidth = fm.stringWidth(text);
         int x = (UiConstants.GAME_W - textWidth) / 2;
-        g.drawString(text, x, y);
-    }
-
-    private void drawCenteredText(Graphics2D g, String text, int y) {
-        FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth(text);
-        int x = (getWidth() - textWidth) / 2;
         g.drawString(text, x, y);
     }
 

@@ -9,9 +9,6 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
 
 // view del menù personalizzazione veicolo
 public class VehicleCustomizationPanel extends JPanel {

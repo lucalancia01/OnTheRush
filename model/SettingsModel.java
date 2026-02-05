@@ -2,7 +2,7 @@ package model;
 
 import utils.Config;
 
-// Impostazioni generali
+// Gestione suono
 public class SettingsModel {
     private final Config cfg = Config.getInstance();
     private boolean soundEnabled;
